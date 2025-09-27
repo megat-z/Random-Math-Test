@@ -1,0 +1,59 @@
+name: Calculate Distance Matrices
+on:
+  repository_dispatch:
+    types: [setup-matrices]
+jobs:
+  build-matrix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      # Step 1: Check out the repository's code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      # Step 3: Install dependencies from requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      # Step 4: Run the Python script to generate the matrix
+      - name: Generate distance matrix
+        run: python .github/workflows/setup.py
+      # Step 5: Commit and push input and output string distance matrices if changes are found
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          changed_input=false
+          changed_output=false
+          # Check for changes in input.json
+          if ! git diff --exit-code test/string-distances/input.json; then
+            git add test/string-distances/input.json
+            changed_input=true
+          fi
+          # Check for changes in output.json
+          if ! git diff --exit-code test/string-distances/output.json; then
+            git add test/string-distances/output.json
+            changed_output=true
+          fi
+          # Commit and push (if any changes were made)
+          if $changed_input && $changed_output; then
+            git commit -m "Setup: input and output string distance matrices updated"
+            git push
+            echo "Both input.json and output.json changed. Committed and pushed."
+          elif $changed_input; then
+            git commit -m "Setup: input string distance matrix updated"
+            git push
+            echo "Only input.json changed. Committed and pushed."
+          elif $changed_output; then
+            git commit -m "Setup: output string distance matrix updated"
+            git push
+            echo "Only output.json changed. Committed and pushed."
+          else
+            echo "Neither input.json nor output.json changed. Nothing committed."
+          fi

@@ -1,0 +1,15 @@
+{
+	"TC001": {
+		"input": "100",
+		"output": "true",
+		"script": "TC001.py"
+	},
+	"TC002.py": {
+		"input": "200",
+		"output": "true"
+	},
+	"TC003": {
+		"input": "300",
+		"output": "false"
+	}
+}
