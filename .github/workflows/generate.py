@@ -2,8 +2,8 @@ import json
 import os
 import random
 
-# -------- CONFIGURATION --------
-NUM_TESTS = 3  # Number of test cases
+# --- CONFIGURATION ---
+NUM_TESTS = 10  # Change this value to set the number of test cases
 
 OPERATIONS = [
     ('+', lambda a, b: a + b),
@@ -19,7 +19,7 @@ def random_case(idx):
     a = random.randint(MIN_VAL, MAX_VAL)
     b = random.randint(MIN_VAL, MAX_VAL)
     output = op_func(a, b)
-    # Avoid division by zero
+    # Ensure valid output for division
     while output is None:
         b = random.randint(1, MAX_VAL)
         output = op_func(a, b)
@@ -39,24 +39,18 @@ def write_test_script(case):
     script_dir = os.path.join("test", "test-scripts")
     os.makedirs(script_dir, exist_ok=True)
     script_path = os.path.join(script_dir, case["script"])
-    op_map = {
-        '+': "+",
-        '-': "-",
-        '*': "*",
-        '/': "/"
-    }
+    op_map = {'+': "+", '-': "-", '*': "*", '/': "/"}
     with open(script_path, "w") as f:
         f.write(
-            f"""# Auto-generated test script for {case['id']}
-a = {case['a']}
-b = {case['b']}
-result = a {op_map[case['op']]} b
-expected = {case['output']}
-print("Input:", a, "{case['op']}", b)
-print("Expected Output:", expected)
-print("Actual Output:", result)
-print("Pass:", result == float(expected))
-"""
+            f"# Auto-generated test script for {case['id']}\n"
+            f"a = {case['a']}\n"
+            f"b = {case['b']}\n"
+            f"result = a {op_map[case['op']]} b\n"
+            f"expected = {case['output']}\n"
+            f"print('Input:', a, '{case['op']}', b)\n"
+            f"print('Expected Output:', expected)\n"
+            f"print('Actual Output:', result)\n"
+            f"print('Pass:', abs(result - float(expected)) < 1e-9)\n"
         )
 
 def main():
@@ -69,7 +63,7 @@ def main():
             "script": case["script"]
         }
         write_test_script(case)
-    os.makedirs(os.path.join("test"), exist_ok=True)
+    os.makedirs("test", exist_ok=True)
     cases_path = os.path.join("test", "test-cases.json")
     with open(cases_path, "w") as f:
         json.dump(test_cases, f, indent=2)
