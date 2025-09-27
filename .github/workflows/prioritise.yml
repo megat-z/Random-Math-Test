@@ -2,7 +2,7 @@ name: Prioritise Test Case Order
 
 on:
   repository_dispatch:
-    types: [test-reorder]
+    types: [prioritise-cases]
 
 jobs:
   prioritise-order:
