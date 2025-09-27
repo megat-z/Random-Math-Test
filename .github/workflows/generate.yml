@@ -30,3 +30,4 @@ jobs:
           else
             git commit -m "Generate: new test cases and scripts"
             git push
+          fi
