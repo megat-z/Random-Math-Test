@@ -3,11 +3,8 @@ import json
 import subprocess
 
 def load_tcp_order():
-    tcp_order_str = os.environ.get("TCP_ORDER", "[]")
-    try:
-        return json.loads(tcp_order_str)
-    except Exception:
-        return []
+    with open("test/tcp.json") as f:
+        return json.load(f)
 
 def load_test_cases():
     with open("test/test-cases.json") as f:
