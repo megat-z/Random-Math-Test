@@ -26,7 +26,6 @@ jobs:
           pip install -r requirements.txt
       - name: Prioritise test cases
         run: python .github/workflows/prioritise.py
-      
       - name: Load TCP order from file
         id: tcp
         run: |
@@ -34,7 +33,6 @@ jobs:
           echo "TCP_ORDER<<EOF" >> $GITHUB_OUTPUT
           echo "$TCP_ORDER" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-      
       - name: Post TCP order as PR comment
         if: ${{ github.ref != 'refs/heads/main' && steps.prn.outputs.prn != '' }}
         run: |
