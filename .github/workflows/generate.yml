@@ -9,9 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      BRANCH_NAME: ${{ github.event.client_payload.branch }}
     steps:
-      - name: Checkout repository
+      - name: Checkout repository on dispatched branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -29,5 +33,5 @@ jobs:
             echo "No changes to commit."
           else
             git commit -m "Generate: new test cases and scripts"
-            git push
+            git push origin $BRANCH_NAME
           fi
