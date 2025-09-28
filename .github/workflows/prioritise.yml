@@ -51,7 +51,7 @@ jobs:
         run: |
           PAYLOAD=$(jq -c \
             --arg branch "${{ env.BRANCH_NAME }}" \
-            --argjson tcp_order ${{ steps.tcp.outputs.TCP_ORDER }} \
+            --argjson tcp_order '${{ steps.tcp.outputs.TCP_ORDER }}' \
             --arg pr_number "${{ steps.prn.outputs.prn }}" \
             '{event_type: "execute-tests", client_payload: {branch: $branch, tcp_order: $tcp_order, pr_number: $pr_number}}')
           echo "$PAYLOAD"
