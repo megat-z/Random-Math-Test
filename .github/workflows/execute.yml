@@ -1,0 +1,50 @@
+name: Execute Test Scripts
+
+on:
+  repository_dispatch:
+    types: [execute-tests]
+
+jobs:
+  execute-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      BRANCH_NAME: ${{ github.event.client_payload.branch }}
+      TCP_ORDER: ${{ github.event.client_payload.tcp_order }}
+      PRN: ${{ github.event.client_payload.pr_number }}
+    steps:
+      - name: Checkout repository on dispatched branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Execute test scripts in TCP order and record results
+        id: exec
+        run: |
+          python .github/workflows/execute.py
+      - name: Commit new fault matrix
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add test/fault-matrices/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Execute: new fault matrix"
+            git push origin $BRANCH_NAME
+          fi
+      - name: Approve PR if all tests passed
+        if: ${{ env.PRN != '' && steps.exec.outputs.all_passed == 'true' }}
+        run: |
+          gh pr review $PRN --approve --body "All test cases passed in prioritized order."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
