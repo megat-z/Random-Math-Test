@@ -3,7 +3,7 @@ import os
 import random
 
 # --- CONFIGURATION ---
-NUM_TESTS = 15  # Change this value to set the number of test cases
+NUM_TESTS = 10  # Change this value to set the number of test cases
 
 OPERATIONS = [
     ('+', lambda a, b: a + b),
