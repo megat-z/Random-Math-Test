@@ -1,52 +1,137 @@
 {
   "TC001": {
-    "input": "53 * 15",
-    "output": "795",
-    "script": "TC001.py"
+    "input": [
+      4,
+      2
+    ],
+    "output": 13,
+    "script": "test_add.py",
+    "operation": "add"
   },
   "TC002": {
-    "input": "51 - 18",
-    "output": "33",
-    "script": "TC002.py"
+    "input": [
+      6,
+      12
+    ],
+    "output": 13,
+    "script": "test_div.py",
+    "operation": "div"
   },
   "TC003": {
-    "input": "50 - 87",
-    "output": "-37",
-    "script": "TC003.py"
+    "input": [
+      4,
+      8
+    ],
+    "output": 14,
+    "script": "test_sub.py",
+    "operation": "sub"
   },
   "TC004": {
-    "input": "47 + 76",
-    "output": "123",
-    "script": "TC004.py"
+    "input": [
+      2,
+      1
+    ],
+    "output": 3,
+    "script": "test_mul.py",
+    "operation": "mul"
   },
   "TC005": {
-    "input": "85 * 91",
-    "output": "7735",
-    "script": "TC005.py"
+    "input": [
+      11,
+      14
+    ],
+    "output": 5,
+    "script": "test_add.py",
+    "operation": "add"
   },
   "TC006": {
-    "input": "90 + 95",
-    "output": "185",
-    "script": "TC006.py"
+    "input": [
+      4,
+      10
+    ],
+    "output": 3,
+    "script": "test_div.py",
+    "operation": "div"
   },
   "TC007": {
-    "input": "50 * 98",
-    "output": "4900",
-    "script": "TC007.py"
+    "input": [
+      5,
+      10
+    ],
+    "output": 9,
+    "script": "test_sub.py",
+    "operation": "sub"
   },
   "TC008": {
-    "input": "74 * 80",
-    "output": "5920",
-    "script": "TC008.py"
+    "input": [
+      11,
+      3
+    ],
+    "output": 13,
+    "script": "test_add.py",
+    "operation": "add"
   },
   "TC009": {
-    "input": "29 - 45",
-    "output": "-16",
-    "script": "TC009.py"
+    "input": [
+      12,
+      11
+    ],
+    "output": 5,
+    "script": "test_add.py",
+    "operation": "add"
   },
   "TC010": {
-    "input": "94 / 74",
-    "output": "1.2702702702702702",
-    "script": "TC010.py"
+    "input": [
+      15,
+      3
+    ],
+    "output": 4,
+    "script": "test_div.py",
+    "operation": "div"
+  },
+  "TC011": {
+    "input": [
+      15,
+      9
+    ],
+    "output": 8,
+    "script": "test_div.py",
+    "operation": "div"
+  },
+  "TC012": {
+    "input": [
+      5,
+      3
+    ],
+    "output": 15,
+    "script": "test_div.py",
+    "operation": "div"
+  },
+  "TC013": {
+    "input": [
+      2,
+      13
+    ],
+    "output": 12,
+    "script": "test_sub.py",
+    "operation": "sub"
+  },
+  "TC014": {
+    "input": [
+      3,
+      6
+    ],
+    "output": 9,
+    "script": "test_sub.py",
+    "operation": "sub"
+  },
+  "TC015": {
+    "input": [
+      13,
+      1
+    ],
+    "output": 7,
+    "script": "test_div.py",
+    "operation": "div"
   }
 }
