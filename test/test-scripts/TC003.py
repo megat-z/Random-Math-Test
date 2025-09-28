@@ -1,8 +1,8 @@
 # Auto-generated test script for TC003
-a = 80
-b = 24
+a = 16
+b = 15
 result = a / b
-expected = 3.3333333333333335
+expected = 1.0666666666666667
 print('Input:', a, '/', b)
 print('Expected Output:', expected)
 print('Actual Output:', result)

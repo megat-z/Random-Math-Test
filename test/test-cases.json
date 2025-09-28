@@ -1,77 +1,52 @@
 {
   "TC001": {
-    "input": "86 - 39",
-    "output": "47",
+    "input": "23 + 48",
+    "output": "71",
     "script": "TC001.py"
   },
   "TC002": {
-    "input": "55 * 1",
-    "output": "55",
+    "input": "98 / 58",
+    "output": "1.6896551724137931",
     "script": "TC002.py"
   },
   "TC003": {
-    "input": "80 / 24",
-    "output": "3.3333333333333335",
+    "input": "16 / 15",
+    "output": "1.0666666666666667",
     "script": "TC003.py"
   },
   "TC004": {
-    "input": "42 - 29",
-    "output": "13",
+    "input": "71 / 100",
+    "output": "0.71",
     "script": "TC004.py"
   },
   "TC005": {
-    "input": "13 + 80",
-    "output": "93",
+    "input": "98 - 11",
+    "output": "87",
     "script": "TC005.py"
   },
   "TC006": {
-    "input": "88 + 13",
-    "output": "101",
+    "input": "93 / 52",
+    "output": "1.7884615384615385",
     "script": "TC006.py"
   },
   "TC007": {
-    "input": "10 + 63",
-    "output": "73",
+    "input": "43 + 2",
+    "output": "45",
     "script": "TC007.py"
   },
   "TC008": {
-    "input": "7 * 93",
-    "output": "651",
+    "input": "91 / 59",
+    "output": "1.5423728813559323",
     "script": "TC008.py"
   },
   "TC009": {
-    "input": "35 - 47",
-    "output": "-12",
+    "input": "1 - 31",
+    "output": "-30",
     "script": "TC009.py"
   },
   "TC010": {
-    "input": "70 * 55",
-    "output": "3850",
+    "input": "39 * 18",
+    "output": "702",
     "script": "TC010.py"
-  },
-  "TC011": {
-    "input": "87 - 9",
-    "output": "78",
-    "script": "TC011.py"
-  },
-  "TC012": {
-    "input": "54 / 100",
-    "output": "0.54",
-    "script": "TC012.py"
-  },
-  "TC013": {
-    "input": "13 + 48",
-    "output": "61",
-    "script": "TC013.py"
-  },
-  "TC014": {
-    "input": "88 / 23",
-    "output": "3.8260869565217392",
-    "script": "TC014.py"
-  },
-  "TC015": {
-    "input": "62 * 75",
-    "output": "4650",
-    "script": "TC015.py"
   }
 }
