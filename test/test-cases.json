@@ -1,77 +1,52 @@
 {
   "TC001": {
-    "input": "78 - 11",
-    "output": "67",
+    "input": "53 * 15",
+    "output": "795",
     "script": "TC001.py"
   },
   "TC002": {
-    "input": "30 * 95",
-    "output": "2850",
+    "input": "51 - 18",
+    "output": "33",
     "script": "TC002.py"
   },
   "TC003": {
-    "input": "46 + 75",
-    "output": "121",
+    "input": "50 - 87",
+    "output": "-37",
     "script": "TC003.py"
   },
   "TC004": {
-    "input": "84 + 8",
-    "output": "92",
+    "input": "47 + 76",
+    "output": "123",
     "script": "TC004.py"
   },
   "TC005": {
-    "input": "44 * 6",
-    "output": "264",
+    "input": "85 * 91",
+    "output": "7735",
     "script": "TC005.py"
   },
   "TC006": {
-    "input": "35 - 32",
-    "output": "3",
+    "input": "90 + 95",
+    "output": "185",
     "script": "TC006.py"
   },
   "TC007": {
-    "input": "1 / 100",
-    "output": "0.01",
+    "input": "50 * 98",
+    "output": "4900",
     "script": "TC007.py"
   },
   "TC008": {
-    "input": "95 + 9",
-    "output": "104",
+    "input": "74 * 80",
+    "output": "5920",
     "script": "TC008.py"
   },
   "TC009": {
-    "input": "43 - 11",
-    "output": "32",
+    "input": "29 - 45",
+    "output": "-16",
     "script": "TC009.py"
   },
   "TC010": {
-    "input": "53 * 36",
-    "output": "1908",
+    "input": "94 / 74",
+    "output": "1.2702702702702702",
     "script": "TC010.py"
-  },
-  "TC011": {
-    "input": "63 / 23",
-    "output": "2.739130434782609",
-    "script": "TC011.py"
-  },
-  "TC012": {
-    "input": "83 - 89",
-    "output": "-6",
-    "script": "TC012.py"
-  },
-  "TC013": {
-    "input": "29 + 13",
-    "output": "42",
-    "script": "TC013.py"
-  },
-  "TC014": {
-    "input": "36 - 69",
-    "output": "-33",
-    "script": "TC014.py"
-  },
-  "TC015": {
-    "input": "66 + 56",
-    "output": "122",
-    "script": "TC015.py"
   }
 }
