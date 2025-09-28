@@ -25,43 +25,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Prioritise test cases
-        id: tcp
         run: python .github/workflows/prioritise.py
-      - name: Find PR Number for branch
-        id: prn
+      
+      - name: Load TCP order from file
+        id: tcp
         run: |
-          BRANCH="${{ env.BRANCH_NAME }}"
-          PR_NUMBER=$(gh pr list --state open --json headRefName,number | jq -r ".[] | select(.headRefName==\"$BRANCH\") | .number")
-          if [ -z "$PR_NUMBER" ]; then
-            echo "prn=" >> $GITHUB_OUTPUT
-          else
-            echo "prn=$PR_NUMBER" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TCP_ORDER=$(jq -r '. | join("\n")' test/tcp.json)
+          echo "TCP_ORDER<<EOF" >> $GITHUB_OUTPUT
+          echo "$TCP_ORDER" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
       - name: Post TCP order as PR comment
-        if: ${{ steps.prn.outputs.prn != '' }}
+        if: ${{ github.ref != 'refs/heads/main' && steps.prn.outputs.prn != '' }}
         run: |
-          TCP_ORDER=$(echo '${{ steps.tcp.outputs.TCP_ORDER }}' | jq -r '. | join("\n")')
-          COMMENT="### Latest Test Case Prioritization Order\n$TCP_ORDER"
+          COMMENT="### Latest Test Case Prioritization Order\n${{ steps.tcp.outputs.TCP_ORDER }}"
           gh pr comment ${{ steps.prn.outputs.prn }} --body "$COMMENT"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Print TCP_ORDER raw value
-        run: echo ${{ steps.tcp.outputs.TCP_ORDER }}
-      - name: Dispatch execute-tests workflow
-        run: |
-          gh api repos/megat-z/Random-Math-Test/dispatches --method POST --input - <<EOF
-          {
-            "event_type": "execute-tests",
-            "client_payload": {
-              "branch": "${{ env.BRANCH_NAME }}",
-              "tcp_order": ${{
-                steps.tcp.outputs.TCP_ORDER
-              }},
-              "pr_number": "${{ steps.prn.outputs.prn }}"
-            }
-          }
-          EOF
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
