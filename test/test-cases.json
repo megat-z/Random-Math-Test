@@ -1,27 +1,27 @@
 {
   "TC001": {
-    "input": "45 + 99",
-    "output": "144",
+    "input": "43 * 36",
+    "output": "1548",
     "script": "TC001.py"
   },
   "TC002": {
-    "input": "30 / 5",
-    "output": "6.0",
+    "input": "14 - 37",
+    "output": "-23",
     "script": "TC002.py"
   },
   "TC003": {
-    "input": "58 + 14",
-    "output": "72",
+    "input": "74 * 49",
+    "output": "3626",
     "script": "TC003.py"
   },
   "TC004": {
-    "input": "15 - 45",
-    "output": "-30",
+    "input": "96 - 19",
+    "output": "77",
     "script": "TC004.py"
   },
   "TC005": {
-    "input": "2 / 42",
-    "output": "0.047619047619047616",
+    "input": "68 - 11",
+    "output": "57",
     "script": "TC005.py"
   }
 }
