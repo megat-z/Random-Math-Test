@@ -1,8 +1,8 @@
 # Auto-generated test script for TC010
-a = 39
-b = 18
+a = 53
+b = 36
 result = a * b
-expected = 702
+expected = 1908
 print('Input:', a, '*', b)
 print('Expected Output:', expected)
 print('Actual Output:', result)

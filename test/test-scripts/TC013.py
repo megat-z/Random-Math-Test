@@ -1,8 +1,8 @@
 # Auto-generated test script for TC013
-a = 13
-b = 48
+a = 29
+b = 13
 result = a + b
-expected = 61
+expected = 42
 print('Input:', a, '+', b)
 print('Expected Output:', expected)
 print('Actual Output:', result)
