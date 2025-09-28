@@ -7,10 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      BRANCH_NAME: ${{ github.event.client_payload.branch }}
     steps:
       # Step 1: Check out the repository's code
-      - name: Checkout repository
+      - name: Checkout repository on dispatched branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
       # Step 2: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -44,15 +48,15 @@ jobs:
           # Commit and push (if any changes were made)
           if $changed_input && $changed_output; then
             git commit -m "Setup: input and output string distance matrices updated"
-            git push
+            git push origin $BRANCH_NAME
             echo "Both input.json and output.json changed. Committed and pushed."
           elif $changed_input; then
             git commit -m "Setup: input string distance matrix updated"
-            git push
+            git push origin $BRANCH_NAME
             echo "Only input.json changed. Committed and pushed."
           elif $changed_output; then
             git commit -m "Setup: output string distance matrix updated"
-            git push
+            git push origin $BRANCH_NAME
             echo "Only output.json changed. Committed and pushed."
           else
             echo "Neither input.json nor output.json changed. Nothing committed."
