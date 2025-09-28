@@ -73,7 +73,8 @@ def main():
     reward_mat = get_latest_fault_matrix(fault_dir, ids)
 
     tcp_order = prioritise_order(ids, input_mat, output_mat, reward_mat)
-    save_json(tcp_order_path, {"order": tcp_order})
+    with open(os.environ['TCP_ORDER'], 'a') as f:
+        f.write(f"tcp_order={json.dumps(tcp_order)}\n")
     print(f"TCP order calculated and saved: {tcp_order}")
 
 if __name__ == "__main__":
