@@ -74,7 +74,7 @@ def main():
 
     tcp_order = prioritise_order(ids, input_mat, output_mat, reward_mat)
     with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-        f.write(f"TCP_ORDER={json.dumps(tcp_order)}\n")
+        f.write(f"TCP_ORDER={json.dumps(tcp_order, separators=(',', ':'))}\n")
     print(f"TCP order calculated and saved: {json.dumps(tcp_order)}")
 
 if __name__ == "__main__":
