@@ -9,9 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      BRANCH_NAME: ${{ github.event.client_payload.branch }}
     steps:
-      - name: Checkout repository
+      - name: Checkout repository on dispatched branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -29,7 +33,7 @@ jobs:
           if ! git diff --exit-code test/tcp-order.json; then
             git add test/tcp-order.json
             git commit -m "Prioritise: updated test case order"
-            git push
+            git push origin $BRANCH_NAME
           else
             echo "No changes to test case order."
           fi
