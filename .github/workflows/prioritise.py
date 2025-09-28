@@ -11,7 +11,6 @@ def save_json(path, obj):
         json.dump(obj, f, indent=2)
 
 def check_test_cases(path):
-    # Check file existence and format
     if not os.path.isfile(path):
         print(f"ERROR: {path} not found.")
         return None
@@ -60,7 +59,7 @@ def main():
     input_path = "test/string-distances/input.json"
     output_path = "test/string-distances/output.json"
     fault_dir = "test/fault-matrices"
-    tcp_order_path = "test/tcp-order.json"
+    tcp_order_path = "test/tcp.json"
 
     cases = check_test_cases(tc_path)
     if cases is None:
@@ -73,9 +72,8 @@ def main():
     reward_mat = get_latest_fault_matrix(fault_dir, ids)
 
     tcp_order = prioritise_order(ids, input_mat, output_mat, reward_mat)
-    with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-        f.write(f"TCP_ORDER={json.dumps(tcp_order, separators=(',', ':'))}\n")
-    print(f"TCP order calculated and saved: {json.dumps(tcp_order)}")
+    save_json(tcp_order_path, tcp_order)
+    print(f"TCP order calculated and saved in {tcp_order_path}: {json.dumps(tcp_order)}")
 
 if __name__ == "__main__":
     main()
