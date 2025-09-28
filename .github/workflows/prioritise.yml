@@ -25,15 +25,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Prioritise test cases
+        id: tcp
         run: python .github/workflows/prioritise.py
-      - name: Commit and push test order
+      - name: Find PR Number for branch
+        id: prn
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          if ! git diff --exit-code test/tcp-order.json; then
-            git add test/tcp-order.json
-            git commit -m "Prioritise: updated test case order"
-            git push origin $BRANCH_NAME
+          BRANCH="${{ env.BRANCH_NAME }}"
+          PR_NUMBER=$(gh pr list --state open --json headRefName,number | jq -r ".[] | select(.headRefName==\"$BRANCH\") | .number")
+          if [ -z "$PR_NUMBER" ]; then
+            echo "prn=" >> $GITHUB_OUTPUT
           else
-            echo "No changes to test case order."
+            echo "prn=$PR_NUMBER" >> $GITHUB_OUTPUT
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Post TCP order as PR comment
+        if: ${{ steps.prn.outputs.prn != '' }}
+        run: |
+          TCP_ORDER=$(echo '${{ steps.tcp.outputs.TCP_ORDER }}' | jq -r '. | join("\n")')
+          COMMENT="### Latest Test Case Prioritization Order\n$TCP_ORDER"
+          gh pr comment ${{ steps.prn.outputs.prn }} --body "$COMMENT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Dispatch execute-tests workflow
+        run: |
+          gh api repos/${{ github.repository }}/dispatches \
+            -f event_type=execute-tests \
+            -f client_payload='{"branch":"${{ env.BRANCH_NAME }}","tcp_order":${{ steps.tcp.outputs.TCP_ORDER }},"pr_number":"${{ steps.prn.outputs.prn }}"}'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
