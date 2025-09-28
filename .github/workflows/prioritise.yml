@@ -42,12 +42,13 @@ jobs:
       - name: Post TCP order as PR comment
         if: ${{ steps.prn.outputs.prn != '' }}
         run: |
-          echo "${{ steps.tcp.outputs.TCP_ORDER }}"
           TCP_ORDER=$(echo '${{ steps.tcp.outputs.TCP_ORDER }}' | jq -r '. | join("\n")')
           COMMENT="### Latest Test Case Prioritization Order\n$TCP_ORDER"
           gh pr comment ${{ steps.prn.outputs.prn }} --body "$COMMENT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Debug TCP_ORDER output
+        run: echo "${{ steps.tcp.outputs.TCP_ORDER }}"
       - name: Dispatch execute-tests workflow
         run: |
           PAYLOAD=$(jq -c \
