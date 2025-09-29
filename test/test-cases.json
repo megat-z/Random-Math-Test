@@ -33,10 +33,10 @@
   },
   "TC05": {
     "input": [
-      71,
-      12
+      7,
+      10
     ],
-    "output": 72,
+    "output": 70,
     "script": "mul.py"
   },
   "TC06": {
