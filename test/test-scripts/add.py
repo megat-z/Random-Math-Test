@@ -7,8 +7,6 @@ def run_test():
         cases = json.load(f)
     status = True
     for cid, case in cases.items():
-        if case["script"] != "test_add.py":
-            continue
         a, b = case["input"]
         expected = case["output"]
         result = add(a, b)
