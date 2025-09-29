@@ -1,21 +1,13 @@
-import json
 import sys
+import math
 from calculate import add
 
-def run_test():
-    with open("test/test-cases.json") as f:
-        cases = json.load(f)
-    status = True
-    for cid, case in cases.items():
-        a, b = case["input"]
-        expected = case["output"]
-        result = add(a, b)
-        if result == expected:
-            print(f"Pass: True | {cid}: {a}+{b}={result} == {expected}")
-        else:
-            print(f"Pass: False | {cid}: {a}+{b}={result} != {expected}")
-            status = False
-    print(f"Pass: {status}")
+def test_addition(input1, input2, expected):
+    result = mul(input1, input2)
+    assert result == expected, f"{result} != {expected}"
 
 if __name__ == "__main__":
-    run_test()
+    input1 = int(sys.argv[1])
+    input2 = int(sys.argv[2])
+    expected = int(sys.argv[3])
+    test_case(input1, input2, expected)
