@@ -47,7 +47,7 @@ def get_latest_fault_matrix(dir_path, ids):
     latest_path = os.path.join(dir_path, files[0])
     try:
         mat = load_json(latest_path)
-        return np.array([mat.get(id, 0.0) for id in ids], dtype=np.float32)
+        return np.array([mat.get(id, 0.5) for id in ids], dtype=np.float32)
     except Exception:
         return np.zeros(len(ids), dtype=np.float32)
 
