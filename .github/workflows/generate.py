@@ -4,26 +4,24 @@ import random
 
 NUM_TESTS = 5
 OPERATIONS = [
-    ('add', '+', 'test_add.py'),
-    ('sub', '-', 'test_sub.py'),
-    ('mul', '*', 'test_mul.py'),
-    ('div', '/', 'test_div.py')
+    ('add.py'),
+    ('sub.py'),
+    ('mul.py'),
+    ('div.py')
 ]
 MIN_VAL, MAX_VAL = 1, 100
 
 def random_case(idx):
-    op_name, op_symbol, script_name = random.choice(OPERATIONS)
+    script_name = random.choice(OPERATIONS)
     a = random.randint(MIN_VAL, MAX_VAL)
     b = random.randint(MIN_VAL, MAX_VAL)
     # For div, avoid zero division
     output = random.randint(MIN_VAL, MAX_VAL)
-    case_id = f"TC{idx:03d}"
+    case_id = f"TC{idx:02d}"
     return {
         "id": case_id,
         "input": [a, b],
         "output": output,
-        "operation": op_name,
-        "op_symbol": op_symbol,
         "script": script_name
     }
 
@@ -36,7 +34,6 @@ def main():
             "input": case["input"],
             "output": case["output"],
             "script": case["script"],
-            "operation": case["operation"]
         }
     os.makedirs("test", exist_ok=True)
     cases_path = os.path.join("test", "test-cases.json")
