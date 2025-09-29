@@ -11,9 +11,9 @@
   "TC002": {
     "input": [
       10,
-      51
+      5
     ],
-    "output": 58,
+    "output": 5,
     "script": "test_sub.py",
     "operation": "sub"
   },
