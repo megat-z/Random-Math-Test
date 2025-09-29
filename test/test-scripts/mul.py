@@ -1,21 +1,19 @@
-import json
 import sys
+import math
 from calculate import mul
 
-def run_test():
-    with open("test/test-cases.json") as f:
-        cases = json.load(f)
-    status = True
-    for cid, case in cases.items():
-        a, b = case["input"]
-        expected = case["output"]
-        result = mul(a, b)
-        if result == expected:
-            print(f"Pass: True | {cid}: {a}*{b}={result} == {expected}")
-        else:
-            print(f"Pass: False | {cid}: {a}*{b}={result} != {expected}")
-            status = False
-    print(f"Pass: {status}")
+def test_case(input1, input2, expected):
+    result = mul(input1, input2)
+    if isinstance(result, float) or isinstance(expected, float):
+        assert math.isclose(result, expected, rel_tol=1e-9), f"{result} != {expected}"
+    else:
+        assert result == expected, f"{result} != {expected}"
 
 if __name__ == "__main__":
-    run_test()
+    if len(sys.argv) != 4:
+        print("Usage: python mul.py <input1> <input2> <expected>")
+        sys.exit(1)
+    input1 = float(sys.argv[1]) if '.' in sys.argv[1] else int(sys.argv[1])
+    input2 = float(sys.argv[2]) if '.' in sys.argv[2] else int(sys.argv[2])
+    expected = float(sys.argv[3]) if '.' in sys.argv[3] else int(sys.argv[3])
+    test_case(input1, input2, expected)
