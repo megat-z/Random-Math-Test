@@ -1,47 +1,42 @@
 {
-  "TC001": {
-    "input": [
-      1,
-      2
-    ],
-    "output": 3,
-    "script": "test_add.py",
-    "operation": "add"
-  },
-  "TC002": {
-    "input": [
-      10,
-      5
-    ],
-    "output": 5,
-    "script": "test_sub.py",
-    "operation": "sub"
-  },
-  "TC003": {
+  "TC01": {
     "input": [
       71,
-      11
+      62
     ],
-    "output": 65,
-    "script": "test_mul.py",
-    "operation": "mul"
+    "output": 67,
+    "script": "add.py"
   },
-  "TC004": {
+  "TC02": {
     "input": [
-      19,
-      22
+      31,
+      96
     ],
-    "output": 32,
-    "script": "test_sub.py",
-    "operation": "sub"
+    "output": 95,
+    "script": "div.py"
   },
-  "TC005": {
+  "TC03": {
     "input": [
-      10,
-      86
+      16,
+      17
     ],
-    "output": 96,
-    "script": "test_mul.py",
-    "operation": "mul"
+    "output": 23,
+    "script": "sub.py"
+  },
+  "TC04": {
+    "input": [
+      39,
+      23
+    ],
+    "output": 63,
+    "script": "sub.py"
+  },
+  "TC05": {
+    "input": [
+      41,
+      51
+    ],
+    "output": 10,
+    "script": "sub.py"
   }
 }
