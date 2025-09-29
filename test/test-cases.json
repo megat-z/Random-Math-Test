@@ -1,82 +1,122 @@
 {
   "TC01": {
     "input": [
-      55,
-      99
+      43,
+      90
     ],
-    "output": 60,
-    "script": "mul.py"
+    "output": 56,
+    "script": "add.py"
   },
   "TC02": {
     "input": [
-      91,
-      27
+      71,
+      81
     ],
-    "output": 13,
-    "script": "sub.py"
+    "output": 22,
+    "script": "add.py"
   },
   "TC03": {
     "input": [
-      20,
-      12
+      28,
+      26
     ],
-    "output": 51,
-    "script": "mul.py"
+    "output": 29,
+    "script": "div.py"
   },
   "TC04": {
     "input": [
-      1,
-      85
+      41,
+      54
     ],
-    "output": 95,
-    "script": "mul.py"
+    "output": 18,
+    "script": "add.py"
   },
   "TC05": {
     "input": [
-      1,
-      91
+      71,
+      12
     ],
-    "output": 37,
-    "script": "div.py"
+    "output": 72,
+    "script": "mul.py"
   },
   "TC06": {
     "input": [
-      31,
-      26
+      96,
+      45
     ],
-    "output": 85,
-    "script": "div.py"
+    "output": 11,
+    "script": "add.py"
   },
   "TC07": {
     "input": [
-      9,
-      6
+      33,
+      19
     ],
-    "output": 1,
-    "script": "sub.py"
+    "output": 42,
+    "script": "add.py"
   },
   "TC08": {
     "input": [
-      15,
+      47,
       100
     ],
-    "output": 64,
-    "script": "div.py"
+    "output": 48,
+    "script": "mul.py"
   },
   "TC09": {
     "input": [
-      75,
-      30
+      100,
+      35
     ],
-    "output": 63,
+    "output": 7,
     "script": "mul.py"
   },
   "TC10": {
     "input": [
-      55,
-      96
+      48,
+      48
+    ],
+    "output": 32,
+    "script": "mul.py"
+  },
+  "TC11": {
+    "input": [
+      100,
+      91
+    ],
+    "output": 61,
+    "script": "div.py"
+  },
+  "TC12": {
+    "input": [
+      80,
+      59
     ],
     "output": 11,
-    "script": "add.py"
+    "script": "div.py"
+  },
+  "TC13": {
+    "input": [
+      25,
+      27
+    ],
+    "output": 43,
+    "script": "sub.py"
+  },
+  "TC14": {
+    "input": [
+      54,
+      68
+    ],
+    "output": 39,
+    "script": "mul.py"
+  },
+  "TC15": {
+    "input": [
+      24,
+      84
+    ],
+    "output": 95,
+    "script": "div.py"
   }
 }
