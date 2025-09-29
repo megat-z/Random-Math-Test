@@ -1,42 +1,82 @@
 {
   "TC01": {
     "input": [
-      71,
-      62
+      55,
+      99
     ],
-    "output": 67,
-    "script": "add.py"
+    "output": 60,
+    "script": "mul.py"
   },
   "TC02": {
     "input": [
-      31,
-      96
+      91,
+      27
     ],
-    "output": 95,
-    "script": "div.py"
+    "output": 13,
+    "script": "sub.py"
   },
   "TC03": {
     "input": [
-      16,
-      17
+      20,
+      12
     ],
-    "output": 23,
-    "script": "sub.py"
+    "output": 51,
+    "script": "mul.py"
   },
   "TC04": {
     "input": [
-      39,
-      23
+      1,
+      85
     ],
-    "output": 63,
-    "script": "sub.py"
+    "output": 95,
+    "script": "mul.py"
   },
   "TC05": {
     "input": [
-      41,
-      51
+      1,
+      91
     ],
-    "output": 10,
+    "output": 37,
+    "script": "div.py"
+  },
+  "TC06": {
+    "input": [
+      31,
+      26
+    ],
+    "output": 85,
+    "script": "div.py"
+  },
+  "TC07": {
+    "input": [
+      9,
+      6
+    ],
+    "output": 1,
     "script": "sub.py"
+  },
+  "TC08": {
+    "input": [
+      15,
+      100
+    ],
+    "output": 64,
+    "script": "div.py"
+  },
+  "TC09": {
+    "input": [
+      75,
+      30
+    ],
+    "output": 63,
+    "script": "mul.py"
+  },
+  "TC10": {
+    "input": [
+      55,
+      96
+    ],
+    "output": 11,
+    "script": "add.py"
   }
 }
