@@ -10,4 +10,4 @@ if __name__ == "__main__":
     input1 = int(sys.argv[1])
     input2 = int(sys.argv[2])
     expected = int(sys.argv[3])
-    test_case(input1, input2, expected)
+    test_addition(input1, input2, expected)
