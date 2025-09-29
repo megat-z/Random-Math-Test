@@ -51,7 +51,7 @@ def get_latest_fault_matrix(dir_path, ids):
     except Exception:
         return np.zeros(len(ids), dtype=np.float32)
 
-def prioritise_order(ids, input_mat, output_mat, reward_mat, alpha=0.5, beta=0.5, gamma=1.0):
+def prioritize_order(ids, input_mat, output_mat, reward_mat, alpha=0.5, beta=0.5, gamma=1.0):
     scores = alpha * np.sum(input_mat, axis=1) + beta * np.sum(output_mat, axis=1) + gamma * reward_mat
     order = [ids[i] for i in np.argsort(scores)[::-1]]
     return order
@@ -73,7 +73,7 @@ def main():
     output_mat = load_matrix(output_path, ids)
     reward_mat = get_latest_fault_matrix(fault_dir, ids)
 
-    tcp_order = prioritise_order(ids, input_mat, output_mat, reward_mat)
+    tcp_order = prioritize_order(ids, input_mat, output_mat, reward_mat)
     save_json(tcp_order_path, tcp_order)
     print(f"TCP order calculated and saved in {tcp_order_path}: {json.dumps(tcp_order)}")
 
