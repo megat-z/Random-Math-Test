@@ -1,10 +1,10 @@
 {
   "TC01": {
     "input": [
-      43,
-      90
+      11,
+      20
     ],
-    "output": 56,
+    "output": 31,
     "script": "add.py"
   },
   "TC02": {
@@ -65,10 +65,10 @@
   },
   "TC09": {
     "input": [
-      100,
-      35
+      10,
+      3
     ],
-    "output": 7,
+    "output": 30,
     "script": "mul.py"
   },
   "TC10": {
