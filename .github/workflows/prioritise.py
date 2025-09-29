@@ -36,6 +36,8 @@ def load_matrix(path, ids):
     return arr
 
 def get_latest_fault_matrix(dir_path, ids):
+    if not os.path.isdir(dir_path):
+        return np.zeros(len(ids), dtype=np.float32)
     files = sorted(
         [f for f in os.listdir(dir_path) if f.endswith(".json")],
         reverse=True
