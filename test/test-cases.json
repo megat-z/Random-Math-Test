@@ -1,137 +1,22 @@
 {
   "TC001": {
-    "input": [
-      4,
-      2
-    ],
-    "output": 13,
-    "script": "test_add.py",
-    "operation": "add"
+    "input": "11 * 75",
+    "output": "825",
+    "script": "TC001.py"
   },
   "TC002": {
-    "input": [
-      6,
-      12
-    ],
-    "output": 13,
-    "script": "test_div.py",
-    "operation": "div"
+    "input": "63 - 61",
+    "output": "2",
+    "script": "TC002.py"
   },
   "TC003": {
-    "input": [
-      4,
-      8
-    ],
-    "output": 14,
-    "script": "test_sub.py",
-    "operation": "sub"
+    "input": "14 - 14",
+    "output": "0",
+    "script": "TC003.py"
   },
   "TC004": {
-    "input": [
-      2,
-      1
-    ],
-    "output": 3,
-    "script": "test_mul.py",
-    "operation": "mul"
-  },
-  "TC005": {
-    "input": [
-      11,
-      14
-    ],
-    "output": 5,
-    "script": "test_add.py",
-    "operation": "add"
-  },
-  "TC006": {
-    "input": [
-      4,
-      10
-    ],
-    "output": 3,
-    "script": "test_div.py",
-    "operation": "div"
-  },
-  "TC007": {
-    "input": [
-      5,
-      10
-    ],
-    "output": 9,
-    "script": "test_sub.py",
-    "operation": "sub"
-  },
-  "TC008": {
-    "input": [
-      11,
-      3
-    ],
-    "output": 13,
-    "script": "test_add.py",
-    "operation": "add"
-  },
-  "TC009": {
-    "input": [
-      12,
-      11
-    ],
-    "output": 5,
-    "script": "test_add.py",
-    "operation": "add"
-  },
-  "TC010": {
-    "input": [
-      15,
-      3
-    ],
-    "output": 4,
-    "script": "test_div.py",
-    "operation": "div"
-  },
-  "TC011": {
-    "input": [
-      15,
-      9
-    ],
-    "output": 8,
-    "script": "test_div.py",
-    "operation": "div"
-  },
-  "TC012": {
-    "input": [
-      5,
-      3
-    ],
-    "output": 15,
-    "script": "test_div.py",
-    "operation": "div"
-  },
-  "TC013": {
-    "input": [
-      2,
-      13
-    ],
-    "output": 12,
-    "script": "test_sub.py",
-    "operation": "sub"
-  },
-  "TC014": {
-    "input": [
-      3,
-      6
-    ],
-    "output": 9,
-    "script": "test_sub.py",
-    "operation": "sub"
-  },
-  "TC015": {
-    "input": [
-      13,
-      1
-    ],
-    "output": 7,
-    "script": "test_div.py",
-    "operation": "div"
+    "input": "2 + 42",
+    "output": "44",
+    "script": "TC004.py"
   }
 }
