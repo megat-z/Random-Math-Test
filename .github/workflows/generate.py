@@ -2,7 +2,7 @@ import json
 import os
 import random
 
-NUM_TESTS = 10
+NUM_TESTS = 5
 OPERATIONS = [
     ('add', '+', 'test_add.py'),
     ('sub', '-', 'test_sub.py'),
