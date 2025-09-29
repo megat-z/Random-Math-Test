@@ -1,12 +1,12 @@
 {
   "TC001": {
     "input": [
-      46,
-      48
+      1,
+      2
     ],
-    "output": 15,
-    "script": "test_sub.py",
-    "operation": "sub"
+    "output": 3,
+    "script": "test_add.py",
+    "operation": "add"
   },
   "TC002": {
     "input": [
