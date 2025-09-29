@@ -48,8 +48,6 @@ def main():
         results[tcid] = rc
         if rc != 0:
             all_passed = False
-
-    # Save results to next fault matrix version
     fault_dir = "test/fault-matrices"
     os.makedirs(fault_dir, exist_ok=True)
     existing = [
