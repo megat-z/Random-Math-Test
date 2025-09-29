@@ -10,18 +10,19 @@ def load_test_cases():
     with open("test/test-cases.json") as f:
         return json.load(f)
 
-def run_script(script_path):
+def run_test_script(script_name, input1, input2, expected):
+    script_path = os.path.join("test", "test-scripts", script_name)
+    args = [str(input1), str(input2), str(expected)]
     try:
         result = subprocess.run(
-            ["python", script_path],
+            ["python", script_path] + args,
             capture_output=True,
             text=True,
             timeout=15
         )
-        # Pass: True => 0, Fail => 1
-        return 0 if "Pass: True" in result.stdout else 1
+        return 0 if result.returncode == 0 else 1
     except Exception as e:
-        print(f"Error running {script_path}: {e}")
+        print(f"Error running {script_name} with {args}: {e}")
         return 1
 
 def main():
@@ -43,11 +44,13 @@ def main():
             results[tcid] = 1
             all_passed = False
             continue
-        script_path = os.path.join("test", "test-scripts", script_file)
-        rc = run_script(script_path)
+        input1, input2 = case["input"]
+        expected = case["output"]
+        rc = run_test_script(script_file, input1, input2, expected)
         results[tcid] = rc
         if rc != 0:
             all_passed = False
+
     fault_dir = "test/fault-matrices"
     os.makedirs(fault_dir, exist_ok=True)
     existing = [
