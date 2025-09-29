@@ -3,7 +3,7 @@ import math
 from calculate import add
 
 def test_addition(input1, input2, expected):
-    result = mul(input1, input2)
+    result = add(input1, input2)
     assert result == expected, f"{result} != {expected}"
 
 if __name__ == "__main__":
