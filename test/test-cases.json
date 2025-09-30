@@ -9,10 +9,10 @@
   },
   "TC02": {
     "input": [
-      41,
-      91
+      2,
+      1
     ],
-    "output": 69,
+    "output": 0,
     "script": "sub.py"
   },
   "TC03": {
