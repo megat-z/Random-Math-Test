@@ -1,42 +1,162 @@
 {
   "TC01": {
     "input": [
-      11,
-      20
+      16,
+      34
+    ],
+    "output": 92,
+    "script": "mul.py"
+  },
+  "TC02": {
+    "input": [
+      41,
+      91
+    ],
+    "output": 69,
+    "script": "sub.py"
+  },
+  "TC03": {
+    "input": [
+      46,
+      79
+    ],
+    "output": 68,
+    "script": "add.py"
+  },
+  "TC04": {
+    "input": [
+      52,
+      2
+    ],
+    "output": 17,
+    "script": "div.py"
+  },
+  "TC05": {
+    "input": [
+      21,
+      47
+    ],
+    "output": 92,
+    "script": "add.py"
+  },
+  "TC06": {
+    "input": [
+      24,
+      66
+    ],
+    "output": 53,
+    "script": "mul.py"
+  },
+  "TC07": {
+    "input": [
+      7,
+      80
+    ],
+    "output": 92,
+    "script": "add.py"
+  },
+  "TC08": {
+    "input": [
+      77,
+      14
+    ],
+    "output": 17,
+    "script": "mul.py"
+  },
+  "TC09": {
+    "input": [
+      20,
+      67
+    ],
+    "output": 25,
+    "script": "div.py"
+  },
+  "TC10": {
+    "input": [
+      40,
+      84
     ],
     "output": 31,
     "script": "add.py"
   },
-  "TC02": {
+  "TC11": {
     "input": [
-      70,
-      81
-    ],
-    "output": 22,
-    "script": "add.py"
-  },
-  "TC03": {
-    "input": [
-      28,
+      10,
       26
     ],
-    "output": 29,
-    "script": "div.py"
-  },
-  "TC04": {
-    "input": [
-      41,
-      54
-    ],
-    "output": 18,
+    "output": 89,
     "script": "add.py"
   },
-  "TC05": {
+  "TC12": {
     "input": [
-      7,
-      10
+      55,
+      40
     ],
-    "output": 70,
+    "output": 98,
+    "script": "div.py"
+  },
+  "TC13": {
+    "input": [
+      8,
+      96
+    ],
+    "output": 49,
+    "script": "div.py"
+  },
+  "TC14": {
+    "input": [
+      95,
+      22
+    ],
+    "output": 49,
+    "script": "add.py"
+  },
+  "TC15": {
+    "input": [
+      39,
+      97
+    ],
+    "output": 74,
+    "script": "div.py"
+  },
+  "TC16": {
+    "input": [
+      11,
+      37
+    ],
+    "output": 53,
+    "script": "div.py"
+  },
+  "TC17": {
+    "input": [
+      67,
+      27
+    ],
+    "output": 73,
+    "script": "sub.py"
+  },
+  "TC18": {
+    "input": [
+      29,
+      48
+    ],
+    "output": 19,
+    "script": "div.py"
+  },
+  "TC19": {
+    "input": [
+      95,
+      39
+    ],
+    "output": 100,
+    "script": "add.py"
+  },
+  "TC20": {
+    "input": [
+      88,
+      21
+    ],
+    "output": 31,
     "script": "mul.py"
   }
 }
