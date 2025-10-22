@@ -1,10 +1,10 @@
 {
   "TC01": {
     "input": [
-      97,
-      34
+      10,
+      5
     ],
-    "output": 64,
+    "output": 5,
     "script": "sub.py"
   },
   "TC02": {
