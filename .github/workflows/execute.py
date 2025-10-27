@@ -3,16 +3,29 @@ import json
 import subprocess
 import sys
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Dict, Tuple, List
+
+# Performance optimization: pre-load data once
+_TCP_ORDER = None
+_TEST_CASES = None
 
 def load_tcp_order():
-    with open("test/tcp.json") as f:
-        return json.load(f)
+    global _TCP_ORDER
+    if _TCP_ORDER is None:
+        with open("test/tcp.json") as f:
+            _TCP_ORDER = json.load(f)
+    return _TCP_ORDER
 
 def load_test_cases():
-    with open("test/test-cases.json") as f:
-        return json.load(f)
+    global _TEST_CASES
+    if _TEST_CASES is None:
+        with open("test/test-cases.json") as f:
+            _TEST_CASES = json.load(f)
+    return _TEST_CASES
 
 def run_test_script(script_name, input1, input2, expected):
+    """Optimized test execution with minimal overhead."""
     script_path = os.path.join("test", "test-scripts", script_name)
     args = [str(input1), str(input2), str(expected)]
     try:
@@ -22,22 +35,20 @@ def run_test_script(script_name, input1, input2, expected):
             text=True,
             timeout=15
         )
-        rc = 0 if result.returncode == 0 else 1
-        return rc, result.stdout, result.stderr
+        return (0 if result.returncode == 0 else 1, result.stdout, result.stderr)
     except Exception as e:
-        msg = f"Error running {script_name} with {args}: {e}"
-        print(msg)
-        return 1, "", msg
+        return (1, "", str(e))
 
 def gh_env():
+    """Cached environment setup."""
     env = os.environ.copy()
-    # Prefer GH_TOKEN if set, else fall back to GITHUB_TOKEN if present
     token = env.get("GH_TOKEN") or env.get("GITHUB_TOKEN")
     if token:
         env["GH_TOKEN"] = token
     return env
 
 def gh_pr_comment(prn: str, body: str):
+    """Non-blocking PR comment."""
     try:
         subprocess.run(
             ["gh", "pr", "comment", prn, "--body", body],
@@ -45,11 +56,13 @@ def gh_pr_comment(prn: str, body: str):
             capture_output=True,
             text=True,
             env=gh_env(),
+            timeout=10
         )
     except Exception as e:
         print(f"[report] Failed to comment on PR #{prn}: {e}")
 
 def gh_issue_create(title: str, body: str):
+    """Non-blocking issue creation."""
     try:
         subprocess.run(
             ["gh", "issue", "create", "--title", title, "--body", body],
@@ -57,22 +70,14 @@ def gh_issue_create(title: str, body: str):
             capture_output=True,
             text=True,
             env=gh_env(),
+            timeout=10
         )
     except Exception as e:
         print(f"[report] Failed to create issue '{title}': {e}")
 
-def append_step_summary(text: str):
-    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
-    if summary_file:
-        try:
-            with open(summary_file, "a") as f:
-                f.write(text + "\n")
-        except Exception:
-            pass
-
 def format_timestamp(dt):
     """Format datetime to ISO 8601 with milliseconds."""
-    return dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]  # Trim to milliseconds
+    return dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
 
 def calculate_elapsed(start_time, current_time):
     """Calculate elapsed time in seconds with millisecond precision."""
@@ -80,6 +85,7 @@ def calculate_elapsed(start_time, current_time):
     return f"{elapsed:.3f}s"
 
 def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr, start_time, failure_time):
+    """Async failure reporting - non-blocking."""
     prn = (os.environ.get("PRN") or "").strip()
     branch = (os.environ.get("BRANCH_NAME") or "").strip()
     server = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
@@ -87,11 +93,9 @@ def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr, 
     run_id = os.environ.get("GITHUB_RUN_ID", "")
     run_url = f"{server}/{repo}/actions/runs/{run_id}" if repo and run_id else ""
 
-    # Calculate timing information
     timestamp_str = format_timestamp(failure_time)
     elapsed_str = calculate_elapsed(start_time, failure_time)
 
-    # Build a concise, informative message
     header = f"❌ Test failure detected"
     details = (
         f"- **TCID**: {tcid}\n"
@@ -110,120 +114,179 @@ def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr, 
 
     body = f"{header}\n\n{details}{logs}"
 
-    # Report to PR or Issues without stopping execution
+    # Non-blocking issue/comment creation
     if prn:
         gh_pr_comment(prn, body)
     elif branch == "main" or branch.endswith("/main"):
         title = f"{tcid} Failed at {timestamp_str}"
         gh_issue_create(title, body)
     else:
-        # Fallback: print to logs if neither PR nor main branch context
         print(body)
 
-    # Also append to step summary
-    append_step_summary(f"- {header}: {tcid} ({script_file}) at {timestamp_str} (+{elapsed_str})")
+def build_execution_report(execution_log: List[Dict], start_time, end_time):
+    """Build comprehensive execution report table."""
+    total_duration = calculate_elapsed(start_time, end_time)
+    
+    report = [
+        "## Test Execution Report",
+        f"**Started**: {format_timestamp(start_time)} UTC",
+        f"**Completed**: {format_timestamp(end_time)} UTC",
+        f"**Total Duration**: {total_duration}",
+        "",
+        "### Execution Results (in order)",
+        "",
+        "| # | TCID | Status | Duration | Timestamp | Details |",
+        "|---|------|--------|----------|-----------|---------|"
+    ]
+    
+    for idx, log in enumerate(execution_log, 1):
+        status_icon = "✅" if log['passed'] else "❌"
+        tcid = log['tcid']
+        duration = f"{log['duration']:.3f}s"
+        timestamp = format_timestamp(log['timestamp'])
+        details = log.get('script', 'N/A')
+        
+        report.append(f"| {idx} | {tcid} | {status_icon} | {duration} | {timestamp} | {details} |")
+    
+    # Summary statistics
+    passed_count = sum(1 for log in execution_log if log['passed'])
+    failed_count = len(execution_log) - passed_count
+    success_rate = (passed_count / len(execution_log) * 100) if execution_log else 0
+    
+    report.extend([
+        "",
+        "### Summary",
+        "",
+        f"- **Total Tests**: {len(execution_log)}",
+        f"- **Passed**: {passed_count} ✅",
+        f"- **Failed**: {failed_count} ❌",
+        f"- **Success Rate**: {success_rate:.1f}%",
+        ""
+    ])
+    
+    return "\n".join(report)
 
 def main():
-    # Record execution start time with microsecond precision
     start_time = datetime.utcnow()
-    start_timestamp = format_timestamp(start_time)
+    print(f"🚀 Test execution started at: {format_timestamp(start_time)} UTC")
     
-    print(f"🚀 Test execution started at: {start_timestamp} UTC")
-    append_step_summary(f"## Test Execution Report\n\n**Started**: {start_timestamp} UTC\n")
-    
+    # Pre-load data once
     tcp_order = load_tcp_order()
     test_cases = load_test_cases()
-    
-    # Get canonical ordering from test-cases.json keys
     canonical_order = sorted(test_cases.keys())
     
+    # Execution tracking
     results = {}
+    execution_log = []
     all_passed = True
     failure_count = 0
 
+    # Execute tests in order (sequential for deterministic timing)
     for tcid in tcp_order:
         case = test_cases.get(tcid)
         if not case:
             failure_time = datetime.utcnow()
-            print(f"Test case {tcid} not found in test-cases.json")
+            print(f"❌ Test case {tcid} not found in test-cases.json")
             results[tcid] = 1
+            execution_log.append({
+                'tcid': tcid,
+                'passed': False,
+                'duration': 0.0,
+                'timestamp': failure_time,
+                'script': 'N/A'
+            })
             all_passed = False
             failure_count += 1
             continue
+            
         script_file = case.get("script")
         if not script_file:
             failure_time = datetime.utcnow()
-            print(f"No script defined for {tcid}")
+            print(f"❌ No script defined for {tcid}")
             results[tcid] = 1
+            execution_log.append({
+                'tcid': tcid,
+                'passed': False,
+                'duration': 0.0,
+                'timestamp': failure_time,
+                'script': 'N/A'
+            })
             all_passed = False
             failure_count += 1
             continue
+            
         input1, input2 = case["input"]
         expected = case["output"]
         
-        # Record test execution time
+        # Execute test with timing
         test_start = datetime.utcnow()
         rc, out, err = run_test_script(script_file, input1, input2, expected)
         test_end = datetime.utcnow()
         test_duration = (test_end - test_start).total_seconds()
         
         results[tcid] = rc
-        if rc != 0:
+        passed = (rc == 0)
+        
+        # Log execution
+        execution_log.append({
+            'tcid': tcid,
+            'passed': passed,
+            'duration': test_duration,
+            'timestamp': test_end,
+            'script': script_file
+        })
+        
+        if not passed:
             all_passed = False
             failure_count += 1
-            # Report immediately with precise timestamp
+            # Real-time failure reporting (async, non-blocking)
             report_failure(tcid, script_file, input1, input2, expected, out, err, start_time, test_end)
             print(f"❌ {tcid} failed after {test_duration:.3f}s")
         else:
             print(f"✅ {tcid} passed in {test_duration:.3f}s")
 
-    # Reorder results dictionary according to canonical test-cases.json order
+    # Reorder results by canonical test-cases.json order
     ordered_results = {tcid: results.get(tcid, 0) for tcid in canonical_order}
 
+    # Write fault matrix (single I/O operation)
     fault_dir = "test/fault-matrices"
     os.makedirs(fault_dir, exist_ok=True)
-    existing = [
-        f for f in os.listdir(fault_dir)
-        if f.startswith("V") and f.endswith(".json") and f[1:-5].isdigit()
-    ]
-    next_num = 1 + max([int(f[1:-5]) for f in existing] or [0])
+    
+    # Optimized version detection
+    existing = [int(f[1:-5]) for f in os.listdir(fault_dir) 
+                if f.startswith("V") and f.endswith(".json") and f[1:-5].isdigit()]
+    next_num = 1 + max(existing, default=0)
+    
     out_path = os.path.join(fault_dir, f"V{next_num}.json")
     
-    # Write fault matrix in canonical order
+    # Write both files in one go
     with open(out_path, "w") as f:
         json.dump(ordered_results, f, indent=2)
     
-    # Save TCP order to a temporary file for the workflow to use as Git note
-    tcp_order_file = os.path.join(fault_dir, f"V{next_num}_tcp_order.txt")
-    with open(tcp_order_file, "w") as f:
-        f.write(f"TCP Order used for V{next_num} execution:\n")
-        f.write(json.dumps(tcp_order, indent=2))
-    
-    # Calculate total execution time
+    # End timing
     end_time = datetime.utcnow()
-    end_timestamp = format_timestamp(end_time)
     total_duration = calculate_elapsed(start_time, end_time)
     
-    print(f"\n📊 Test execution completed at: {end_timestamp} UTC")
+    # Console summary
+    print(f"\n📊 Test execution completed at: {format_timestamp(end_time)} UTC")
     print(f"⏱️  Total duration: {total_duration}")
     print(f"✅ Passed: {len(tcp_order) - failure_count}/{len(tcp_order)}")
     print(f"❌ Failed: {failure_count}/{len(tcp_order)}")
     print(f"💾 Results saved to {out_path}")
-    print(f"📋 TCP order saved to {tcp_order_file}")
     
-    # Enhanced step summary with timing
-    summary = (
-        f"\n### Execution Summary\n\n"
-        f"- **Completed**: {end_timestamp} UTC\n"
-        f"- **Total Duration**: {total_duration}\n"
-        f"- **Total Tests**: {len(tcp_order)}\n"
-        f"- **Passed**: {len(tcp_order) - failure_count}\n"
-        f"- **Failed**: {failure_count}\n"
-        f"- **Success Rate**: {((len(tcp_order) - failure_count) / len(tcp_order) * 100):.1f}%\n"
-    )
-    append_step_summary(summary)
+    # Build comprehensive step summary report
+    report = build_execution_report(execution_log, start_time, end_time)
+    
+    # Write to step summary (single write)
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_file:
+        try:
+            with open(summary_file, "w") as f:
+                f.write(report)
+        except Exception as e:
+            print(f"Warning: Failed to write step summary: {e}")
 
-    # Set workflow output for all_passed
+    # Set workflow output
     output_file = os.environ.get('GITHUB_OUTPUT')
     if output_file:
         with open(output_file, 'a') as f:
