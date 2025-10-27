@@ -2,6 +2,7 @@ import os
 import json
 import subprocess
 import sys
+from datetime import datetime
 
 def load_tcp_order():
     with open("test/tcp.json") as f:
@@ -69,7 +70,16 @@ def append_step_summary(text: str):
         except Exception:
             pass
 
-def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr):
+def format_timestamp(dt):
+    """Format datetime to ISO 8601 with milliseconds."""
+    return dt.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]  # Trim to milliseconds
+
+def calculate_elapsed(start_time, current_time):
+    """Calculate elapsed time in seconds with millisecond precision."""
+    elapsed = (current_time - start_time).total_seconds()
+    return f"{elapsed:.3f}s"
+
+def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr, start_time, failure_time):
     prn = (os.environ.get("PRN") or "").strip()
     branch = (os.environ.get("BRANCH_NAME") or "").strip()
     server = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
@@ -77,14 +87,20 @@ def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr):
     run_id = os.environ.get("GITHUB_RUN_ID", "")
     run_url = f"{server}/{repo}/actions/runs/{run_id}" if repo and run_id else ""
 
+    # Calculate timing information
+    timestamp_str = format_timestamp(failure_time)
+    elapsed_str = calculate_elapsed(start_time, failure_time)
+
     # Build a concise, informative message
     header = f"❌ Test failure detected"
     details = (
-        f"- TCID: {tcid}\n"
-        f"- Script: {script_file}\n"
-        f"- Inputs: [{input1}, {input2}]\n"
-        f"- Expected: {expected}\n"
-        f"- Run: {run_url or 'N/A'}\n"
+        f"- **TCID**: {tcid}\n"
+        f"- **Script**: {script_file}\n"
+        f"- **Inputs**: [{input1}, {input2}]\n"
+        f"- **Expected**: {expected}\n"
+        f"- **Timestamp**: {timestamp_str} UTC\n"
+        f"- **Elapsed Time**: {elapsed_str}\n"
+        f"- **Run**: {run_url or 'N/A'}\n"
     )
     logs = ""
     if stdout:
@@ -98,42 +114,64 @@ def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr):
     if prn:
         gh_pr_comment(prn, body)
     elif branch == "main" or branch.endswith("/main"):
-        title = f"{tcid} Failed"
+        title = f"{tcid} Failed at {timestamp_str}"
         gh_issue_create(title, body)
     else:
         # Fallback: print to logs if neither PR nor main branch context
         print(body)
 
     # Also append to step summary
-    append_step_summary(f"- {header}: {tcid} ({script_file})")
+    append_step_summary(f"- {header}: {tcid} ({script_file}) at {timestamp_str} (+{elapsed_str})")
 
 def main():
+    # Record execution start time with microsecond precision
+    start_time = datetime.utcnow()
+    start_timestamp = format_timestamp(start_time)
+    
+    print(f"🚀 Test execution started at: {start_timestamp} UTC")
+    append_step_summary(f"## Test Execution Report\n\n**Started**: {start_timestamp} UTC\n")
+    
     tcp_order = load_tcp_order()
     test_cases = load_test_cases()
     results = {}
     all_passed = True
+    failure_count = 0
 
     for tcid in tcp_order:
         case = test_cases.get(tcid)
         if not case:
+            failure_time = datetime.utcnow()
             print(f"Test case {tcid} not found in test-cases.json")
             results[tcid] = 1
             all_passed = False
+            failure_count += 1
             continue
         script_file = case.get("script")
         if not script_file:
+            failure_time = datetime.utcnow()
             print(f"No script defined for {tcid}")
             results[tcid] = 1
             all_passed = False
+            failure_count += 1
             continue
         input1, input2 = case["input"]
         expected = case["output"]
+        
+        # Record test execution time
+        test_start = datetime.utcnow()
         rc, out, err = run_test_script(script_file, input1, input2, expected)
+        test_end = datetime.utcnow()
+        test_duration = (test_end - test_start).total_seconds()
+        
         results[tcid] = rc
         if rc != 0:
             all_passed = False
-            # Report immediately, do not halt
-            report_failure(tcid, script_file, input1, input2, expected, out, err)
+            failure_count += 1
+            # Report immediately with precise timestamp
+            report_failure(tcid, script_file, input1, input2, expected, out, err, start_time, test_end)
+            print(f"❌ {tcid} failed after {test_duration:.3f}s")
+        else:
+            print(f"✅ {tcid} passed in {test_duration:.3f}s")
 
     fault_dir = "test/fault-matrices"
     os.makedirs(fault_dir, exist_ok=True)
@@ -145,7 +183,29 @@ def main():
     out_path = os.path.join(fault_dir, f"V{next_num}.json")
     with open(out_path, "w") as f:
         json.dump(results, f, indent=2)
-    print(f"Results saved to {out_path}")
+    
+    # Calculate total execution time
+    end_time = datetime.utcnow()
+    end_timestamp = format_timestamp(end_time)
+    total_duration = calculate_elapsed(start_time, end_time)
+    
+    print(f"\n📊 Test execution completed at: {end_timestamp} UTC")
+    print(f"⏱️  Total duration: {total_duration}")
+    print(f"✅ Passed: {len(tcp_order) - failure_count}/{len(tcp_order)}")
+    print(f"❌ Failed: {failure_count}/{len(tcp_order)}")
+    print(f"💾 Results saved to {out_path}")
+    
+    # Enhanced step summary with timing
+    summary = (
+        f"\n### Execution Summary\n\n"
+        f"- **Completed**: {end_timestamp} UTC\n"
+        f"- **Total Duration**: {total_duration}\n"
+        f"- **Total Tests**: {len(tcp_order)}\n"
+        f"- **Passed**: {len(tcp_order) - failure_count}\n"
+        f"- **Failed**: {failure_count}\n"
+        f"- **Success Rate**: {((len(tcp_order) - failure_count) / len(tcp_order) * 100):.1f}%\n"
+    )
+    append_step_summary(summary)
 
     # Set workflow output for all_passed
     output_file = os.environ.get('GITHUB_OUTPUT')
