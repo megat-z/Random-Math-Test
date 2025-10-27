@@ -24,13 +24,13 @@ jobs:
         run: python .github/workflows/generate.py
       - name: Prepare test-scripts directory
         run: mkdir -p test/test-scripts
-      - name: Empty fault matrices (keep files, clear content)
+      - name: Delete all files in fault-matrices directory
         shell: bash
         run: |
           mkdir -p test/fault-matrices
           if [ -d test/fault-matrices ]; then
-            # Truncate all files to zero bytes without deleting them
-            find test/fault-matrices -type f -exec truncate -s 0 {} +
+            # Remove all files in the directory but keep the directory itself
+            rm -f test/fault-matrices/*
           fi
       - name: Commit and push test-cases, scripts, and emptied fault matrices
         run: |
