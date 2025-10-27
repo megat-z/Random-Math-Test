@@ -35,7 +35,6 @@ jobs:
         id: exec
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EXECUTION_ATTEMPT: "1"
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
           PRN: ${{ env.PRN }}
         run: |
