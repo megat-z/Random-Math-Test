@@ -12,7 +12,7 @@ let _doc, _ss = {};
 function getss(sheet) {
   const s = String(sheet);
   if (!_ss[s]) {
-    if (!_doc) { _doc = SpreadsheetApp.getActiveSpreadsheet() }
+    if (!_doc) { _doc = SpreadsheetApp.getActiveSpreadsheet(); }
     _ss[s] = _doc.getSheetByName(s);
     if (!_ss[s]){
       const template = _doc.getSheetByName('log');
@@ -29,39 +29,6 @@ function detectFile(update, path){
     const modified = commit.modified && commit.modified.includes(path);
     return added || modified;
   });
-}
-
-// -------- Check if commits should skip execution --------
-function shouldSkipExecution(update) {
-  // Check if any commit has [skip-execute] marker
-  const hasSkipMarker = update.commits.some(commit => 
-    commit.message && commit.message.includes('[skip-execute]')
-  );
-  
-  if (hasSkipMarker) return true;
-  
-  // Check if ALL changes across ALL commits are ONLY to tcp.json
-  let hasTcpJsonChange = false;
-  let hasOtherChanges = false;
-  
-  update.commits.forEach(commit => {
-    const allFiles = [
-      ...(commit.added || []),
-      ...(commit.modified || []),
-      ...(commit.removed || [])
-    ];
-    
-    allFiles.forEach(file => {
-      if (file === 'test/tcp.json') {
-        hasTcpJsonChange = true;
-      } else {
-        hasOtherChanges = true;
-      }
-    });
-  });
-  
-  // Skip if ONLY tcp.json changed (no other files)
-  return hasTcpJsonChange && !hasOtherChanges;
 }
 
 // -------- Trigger dispatch workflow --------
@@ -110,16 +77,6 @@ function doPost(e) {
     const branch = parts.length >= 3 ? parts.slice(2).join('/') : null;
     getss(branch).appendRow([new Date(), JSON.stringify(update, null, 2)]);
 
-    // -------- Check for skip-execute conditions --------
-    if (shouldSkipExecution(update)) {
-      getss(branch).appendRow([
-        new Date(), 
-        "Skipping execution: [skip-execute] marker found or only tcp.json was modified.", 
-        JSON.stringify(update, null, 2)
-      ]);
-      return ContentService.createTextOutput("OK - Execution skipped (tcp.json-only or skip marker)").setMimeType(ContentService.MimeType.TEXT);
-    }
-
     // -------- Switch case for file changes --------
     let workflow, logMsg, resultMsg;
 
@@ -135,6 +92,20 @@ function doPost(e) {
         resultMsg = "OK - Setup Workflow Triggered";
         break;
       case detectFile(update, 'test/tcp.json'):
+        if (update.commits.some(commit => commit.message && commit.message.includes('[skip-execute]'))) {
+          getss(branch).appendRow([
+            new Date(), 
+            "Skipping execution: [skip-execute] marker found or only tcp.json was modified.", 
+            JSON.stringify(update, null, 2)
+          ]);
+          return ContentService.createTextOutput("OK - Execution skipped (tcp.json-only or skip marker)").setMimeType(ContentService.MimeType.TEXT);
+        } else {
+          workflow = 'execute-tests';
+          logMsg = "'test/tcp.json' was changed. Triggering execute-tests workflow.";
+          resultMsg = "OK - Execute Workflow Triggered";
+        }
+        break;
+      case detectFile(update, 'Code.gs'):
         workflow = 'execute-tests';
         logMsg = "'test/tcp.json' was changed. Triggering execute-tests workflow.";
         resultMsg = "OK - Execute Workflow Triggered";
