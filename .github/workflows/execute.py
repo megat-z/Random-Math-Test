@@ -3,7 +3,6 @@ import json
 import subprocess
 import sys
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, Tuple, List
 
 # Performance optimization: pre-load data once
@@ -123,9 +122,80 @@ def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr, 
     else:
         print(body)
 
-def build_execution_report(execution_log: List[Dict], start_time, end_time):
-    """Build comprehensive execution report table."""
+def calculate_apfd(tcp_order: List[str], fault_results: Dict[str, int]) -> Tuple[float, Dict[str, any]]:
+    """
+    Calculate APFD (Average Percentage of Faults Detected) for the given TCP order.
+    
+    Formula: APFD = 1 - (sum(TF_i) / (n * m)) + 1/(2n)
+    
+    Where:
+    - n = total number of test cases
+    - m = total number of faults detected
+    - TF_i = position of first test that detects fault i (1-indexed)
+    
+    Returns:
+        (apfd_score, metadata_dict)
+    """
+    n = len(tcp_order)
+    
+    # Identify faults (failed tests) in execution order
+    faults = [tcid for tcid in tcp_order if fault_results.get(tcid, 0) == 1]
+    m = len(faults)
+    
+    if m == 0:
+        # No faults detected - perfect (or no failures to prioritize)
+        return 1.0, {
+            "total_tests": n,
+            "total_faults": 0,
+            "first_fault_position": None,
+            "average_fault_position": 0.0,
+            "optimal_apfd": 1.0,
+            "random_baseline": 0.5 + (1.0 / (2 * n)) if n > 0 else 0.5
+        }
+    
+    # Calculate sum of fault detection positions
+    tf_sum = 0
+    first_fault_pos = None
+    fault_positions = []
+    
+    for i, tcid in enumerate(tcp_order, start=1):
+        if fault_results.get(tcid, 0) == 1:
+            tf_sum += i
+            fault_positions.append(i)
+            if first_fault_pos is None:
+                first_fault_pos = i
+    
+    # Calculate APFD
+    apfd = 1.0 - (tf_sum / (n * m)) + (1.0 / (2 * n))
+    
+    # Calculate metadata
+    avg_fault_pos = tf_sum / m if m > 0 else 0.0
+    
+    # Optimal APFD (if all faults detected first)
+    optimal_tf_sum = sum(range(1, m + 1))
+    optimal_apfd = 1.0 - (optimal_tf_sum / (n * m)) + (1.0 / (2 * n))
+    
+    # Random baseline estimate (faults distributed uniformly)
+    random_baseline = 0.5 + (1.0 / (2 * n))
+    
+    metadata = {
+        "total_tests": n,
+        "total_faults": m,
+        "first_fault_position": first_fault_pos,
+        "average_fault_position": avg_fault_pos,
+        "optimal_apfd": optimal_apfd,
+        "random_baseline": random_baseline,
+        "fault_positions": fault_positions
+    }
+    
+    return apfd, metadata
+
+def build_execution_report(execution_log: List[Dict], start_time, end_time, tcp_order: List[str], fault_results: Dict[str, int]):
+    """Build comprehensive execution report table with APFD metrics."""
     total_duration = calculate_elapsed(start_time, end_time)
+    
+    # Calculate APFD
+    apfd_score, apfd_meta = calculate_apfd(tcp_order, fault_results)
     
     report = [
         "## Test Execution Report",
@@ -163,6 +233,54 @@ def build_execution_report(execution_log: List[Dict], start_time, end_time):
         f"- **Success Rate**: {success_rate:.1f}%",
         ""
     ])
+    
+    # APFD Metrics Section
+    report.extend([
+        "### 📊 APFD (Average Percentage of Faults Detected)",
+        "",
+        f"- **APFD Score**: **{apfd_score:.4f}** ({apfd_score * 100:.2f}%)",
+    ])
+    
+    if apfd_meta["total_faults"] > 0:
+        # Performance indicators
+        if apfd_score >= 0.9:
+            performance = "🟢 Excellent"
+        elif apfd_score >= 0.7:
+            performance = "🟡 Good"
+        elif apfd_score >= 0.5:
+            performance = "🟠 Moderate"
+        else:
+            performance = "🔴 Poor"
+        
+        improvement_over_random = ((apfd_score - apfd_meta['random_baseline']) / apfd_meta['random_baseline'] * 100) if apfd_meta['random_baseline'] > 0 else 0
+        
+        report.extend([
+            f"- **Performance**: {performance}",
+            f"- **First Fault Position**: #{apfd_meta['first_fault_position']} (out of {apfd_meta['total_tests']})",
+            f"- **Average Fault Position**: {apfd_meta['average_fault_position']:.1f}",
+            f"- **Optimal APFD** (all faults first): {apfd_meta['optimal_apfd']:.4f}",
+            f"- **Random Baseline**: {apfd_meta['random_baseline']:.4f}",
+            f"- **Improvement over Random**: {improvement_over_random:+.1f}%",
+            "",
+            "<details>",
+            "<summary>📈 APFD Interpretation</summary>",
+            "",
+            "**APFD measures how quickly your test prioritization detects faults:**",
+            "- **1.0** = Perfect (all faults detected immediately)",
+            "- **0.9-0.99** = Excellent early fault detection",
+            "- **0.7-0.89** = Good prioritization",
+            "- **0.5-0.69** = Moderate effectiveness",
+            "- **<0.5** = Below random ordering",
+            "",
+            f"**Fault positions in execution order**: {', '.join(f'#{p}' for p in apfd_meta['fault_positions'][:10])}" + 
+            (f"... (+{len(apfd_meta['fault_positions']) - 10} more)" if len(apfd_meta['fault_positions']) > 10 else ""),
+            "",
+            "</details>",
+        ])
+    else:
+        report.append("- **Status**: No faults detected (all tests passed) ✅")
+    
+    report.append("")
     
     return "\n".join(report)
 
@@ -259,7 +377,7 @@ def main():
     
     out_path = os.path.join(fault_dir, f"V{next_num}.json")
     
-    # Write both files in one go
+    # Write fault matrix
     with open(out_path, "w") as f:
         json.dump(ordered_results, f, indent=2)
     
@@ -267,15 +385,19 @@ def main():
     end_time = datetime.utcnow()
     total_duration = calculate_elapsed(start_time, end_time)
     
+    # Calculate APFD for console output
+    apfd_score, apfd_meta = calculate_apfd(tcp_order, results)
+    
     # Console summary
     print(f"\n📊 Test execution completed at: {format_timestamp(end_time)} UTC")
     print(f"⏱️  Total duration: {total_duration}")
     print(f"✅ Passed: {len(tcp_order) - failure_count}/{len(tcp_order)}")
     print(f"❌ Failed: {failure_count}/{len(tcp_order)}")
+    print(f"📈 APFD Score: {apfd_score:.4f} ({apfd_score * 100:.2f}%)")
     print(f"💾 Results saved to {out_path}")
     
-    # Build comprehensive step summary report
-    report = build_execution_report(execution_log, start_time, end_time)
+    # Build comprehensive step summary report with APFD
+    report = build_execution_report(execution_log, start_time, end_time, tcp_order, results)
     
     # Write to step summary (single write)
     summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
@@ -291,6 +413,7 @@ def main():
     if output_file:
         with open(output_file, 'a') as f:
             f.write(f"all_passed={'true' if all_passed else 'false'}\n")
+            f.write(f"apfd_score={apfd_score:.4f}\n")
 
 if __name__ == "__main__":
     main()
