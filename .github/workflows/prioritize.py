@@ -1,6 +1,7 @@
 import os
 import json
 import numpy as np
+import re
 
 def load_json(path):
     with open(path, "r") as f:
@@ -38,13 +39,17 @@ def load_matrix(path, ids):
 def get_latest_fault_matrix(dir_path, ids):
     if not os.path.isdir(dir_path):
         return np.zeros(len(ids), dtype=np.float32)
-    files = sorted(
-        [f for f in os.listdir(dir_path) if f.endswith(".json")],
-        reverse=True
-    )
-    if not files:
+    nums = []
+    for f in os.listdir(dir_path):
+        m = re.match(r"^V(\d+)\.json$", f)
+        if m:
+            try:
+                nums.append(int(m.group(1)))
+            except ValueError:
+                pass
+    if not nums:
         return np.zeros(len(ids), dtype=np.float32)
-    latest_path = os.path.join(dir_path, files[0])
+    latest_path = os.path.join(dir_path, f"V{max(nums)}.json")
     try:
         mat = load_json(latest_path)
         return np.array([mat.get(id, 0.5) for id in ids], dtype=np.float32)
