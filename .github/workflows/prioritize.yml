@@ -9,23 +9,29 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     env:
       BRANCH_NAME: ${{ github.event.client_payload.branch }}
+      PRN: ${{ github.event.client_payload.pr_number }}
     steps:
       - name: Checkout repository on dispatched branch
         uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
       - name: Prioritize test cases
         run: python .github/workflows/prioritize.py
+
       - name: Commit and push tcp.json if changed
         run: |
           git config --global user.name 'github-actions[bot]'
@@ -37,6 +43,7 @@ jobs:
             git commit -m "Prioritize: updated tcp.json"
             git push origin $BRANCH_NAME
           fi
+
       - name: Load TCP order from file
         id: tcp
         run: |
@@ -44,8 +51,22 @@ jobs:
           echo "TCP_ORDER<<EOF" >> $GITHUB_OUTPUT
           echo "$TCP_ORDER" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Determine PR number
+        id: prn
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ env.PRN }}" ]; then
+            echo "prn=${{ env.PRN }}" >> $GITHUB_OUTPUT
+          else
+            # Try to find a PR associated with the branch
+            PRN=$(gh pr list --head "${{ env.BRANCH_NAME }}" --state open --json number -q '.[0].number' || echo "")
+            echo "prn=${PRN}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Post TCP order as PR comment
-        if: ${{ github.ref != 'refs/heads/main' && steps.prn.outputs.prn != '' }}
+        if: ${{ steps.prn.outputs.prn != '' }}
         run: |
           COMMENT="### Latest Test Case Prioritization Order\n${{ steps.tcp.outputs.TCP_ORDER }}"
           gh pr comment ${{ steps.prn.outputs.prn }} --body "$COMMENT"
