@@ -46,14 +46,12 @@ jobs:
           git config --local user.name 'github-actions[bot]'
           git config --local user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # Stage fault matrix JSON files only
           git add test/fault-matrices/*.json
           
           if git diff --cached --quiet; then
             echo "No fault matrix changes to commit."
           else
-            # Commit fault matrix
-            git commit -m "Execute: new fault matrix" --quiet
+            git commit -m "Execute: new fault matrix (APFD: ${{ steps.exec.outputs.apfd_score }})" --quiet
             git push origin ${{ env.BRANCH_NAME }} --quiet
           fi
 
@@ -80,6 +78,6 @@ jobs:
       - name: Approve PR if all tests passed
         if: ${{ env.PRN != '' && steps.exec.outputs.all_passed == 'true' }}
         run: |
-          gh pr review ${{ env.PRN }} --approve --body "✅ All test cases passed in this execution."
+          gh pr review ${{ env.PRN }} --approve --body "✅ All test cases passed in this execution (APFD: ${{ steps.exec.outputs.apfd_score }})."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
