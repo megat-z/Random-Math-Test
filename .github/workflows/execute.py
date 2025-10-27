@@ -21,10 +21,92 @@ def run_test_script(script_name, input1, input2, expected):
             text=True,
             timeout=15
         )
-        return 0 if result.returncode == 0 else 1
+        rc = 0 if result.returncode == 0 else 1
+        return rc, result.stdout, result.stderr
     except Exception as e:
-        print(f"Error running {script_name} with {args}: {e}")
-        return 1
+        msg = f"Error running {script_name} with {args}: {e}"
+        print(msg)
+        return 1, "", msg
+
+def gh_env():
+    env = os.environ.copy()
+    # Prefer GH_TOKEN if set, else fall back to GITHUB_TOKEN if present
+    token = env.get("GH_TOKEN") or env.get("GITHUB_TOKEN")
+    if token:
+        env["GH_TOKEN"] = token
+    return env
+
+def gh_pr_comment(prn: str, body: str):
+    try:
+        subprocess.run(
+            ["gh", "pr", "comment", prn, "--body", body],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=gh_env(),
+        )
+    except Exception as e:
+        print(f"[report] Failed to comment on PR #{prn}: {e}")
+
+def gh_issue_create(title: str, body: str):
+    try:
+        subprocess.run(
+            ["gh", "issue", "create", "--title", title, "--body", body],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=gh_env(),
+        )
+    except Exception as e:
+        print(f"[report] Failed to create issue '{title}': {e}")
+
+def append_step_summary(text: str):
+    summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_file:
+        try:
+            with open(summary_file, "a") as f:
+                f.write(text + "\n")
+        except Exception:
+            pass
+
+def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr):
+    prn = (os.environ.get("PRN") or "").strip()
+    branch = (os.environ.get("BRANCH_NAME") or "").strip()
+    attempt = (os.environ.get("EXECUTION_ATTEMPT") or "1").strip()
+    server = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    run_id = os.environ.get("GITHUB_RUN_ID", "")
+    run_url = f"{server}/{repo}/actions/runs/{run_id}" if repo and run_id else ""
+
+    # Build a concise, informative message
+    header = f"❌ Test failure detected (attempt {attempt})"
+    details = (
+        f"- TCID: {tcid}\n"
+        f"- Script: {script_file}\n"
+        f"- Inputs: [{input1}, {input2}]\n"
+        f"- Expected: {expected}\n"
+        f"- Run: {run_url or 'N/A'}\n"
+    )
+    logs = ""
+    if stdout:
+        logs += f"\n<details><summary>stdout</summary>\n\n```\n{stdout.strip()}\n```\n</details>"
+    if stderr:
+        logs += f"\n<details><summary>stderr</summary>\n\n```\n{stderr.strip()}\n```\n</details>"
+
+    body = f"{header}\n\n{details}{logs}"
+
+    # Report to PR or Issues without stopping execution
+    if prn:
+        gh_pr_comment(prn, body)
+    elif branch == "main" or branch.endswith("/main"):
+        title = f"[Attempt {attempt}] Failed test: {tcid}"
+        gh_issue_create(title, body)
+    else:
+        # Fallback: print to logs if neither PR nor main branch context
+        print(body)
+
+    # Also append to step summary
+    append_step_summary(f"- {header}: {tcid} ({script_file})")
 
 def main():
     tcp_order = load_tcp_order()
@@ -47,10 +129,12 @@ def main():
             continue
         input1, input2 = case["input"]
         expected = case["output"]
-        rc = run_test_script(script_file, input1, input2, expected)
+        rc, out, err = run_test_script(script_file, input1, input2, expected)
         results[tcid] = rc
         if rc != 0:
             all_passed = False
+            # Report immediately, do not halt
+            report_failure(tcid, script_file, input1, input2, expected, out, err)
 
     fault_dir = "test/fault-matrices"
     os.makedirs(fault_dir, exist_ok=True)
