@@ -60,7 +60,7 @@ def get_reward_from_history(dir_path: str, ids: List[str], decay: float = 0.7) -
     Build a reward vector using an EMA over all fault matrices.
     - Each matrix is a per-TCID {id: 0|1}, where 1 indicates failure.
     - decay in [0,1): higher means longer memory; 0.7 favors recent cycles.
-    Starts from neutral 0.5 to avoid over-penalizing unseen IDs.
+    Returns zeros if no history is present.
     """
     versions = list_fault_versions(dir_path)
     if not versions:
@@ -95,8 +95,10 @@ def prioritize_order(ids, input_mat, output_mat, reward_vec, alpha=0.5, beta=0.5
     scores = alpha * avg_input + beta * avg_output + gamma * reward_vec
 
     # Stable tie-break by ID to make order deterministic across runs
-    stable_indices = np.lexsort((np.array(ids), -scores))
-    order = [ids[i] for i in stable_indices[::-1]]
+    indices = np.arange(len(ids))
+    # Sort by (-score, id)
+    order_idx = np.lexsort((np.array(ids), -scores))
+    order = [ids[i] for i in order_idx]
     return order, scores
 
 def main():
@@ -105,6 +107,7 @@ def main():
     output_path = "test/string-distances/output.json"
     fault_dir = "test/fault-matrices"
     tcp_order_path = "test/tcp.json"
+    tcp_scores_path = "test/tcp-scores.json"
 
     cases = check_test_cases(tc_path)
     if cases is None:
@@ -114,14 +117,29 @@ def main():
     ids = sorted(cases.keys())
     input_mat = load_matrix(input_path, ids)
     output_mat = load_matrix(output_path, ids)
-    reward_vec = get_reward_from_history(fault_dir, ids, decay=0.7)
 
-    tcp_order, scores = prioritize_order(ids, input_mat, output_mat, reward_vec, 0.5, 0.5, 1.0)
+    # Allow tuning via environment variables
+    alpha = float(os.environ.get("TCP_ALPHA", "0.5"))
+    beta = float(os.environ.get("TCP_BETA", "0.5"))
+    gamma = float(os.environ.get("TCP_GAMMA", "1.0"))
+    decay = float(os.environ.get("REWARD_DECAY", "0.7"))
+
+    reward_vec = get_reward_from_history(fault_dir, ids, decay=decay)
+
+    tcp_order, scores = prioritize_order(ids, input_mat, output_mat, reward_vec, alpha, beta, gamma)
     save_json(tcp_order_path, tcp_order)
+
+    # Optional: save scores for diagnostics (not necessarily committed)
+    try:
+        score_map = {tid: float(scores[ids.index(tid)]) for tid in ids}
+        save_json(tcp_scores_path, score_map)
+    except Exception:
+        pass
 
     # Diagnostics for quick validation
     top5 = list(zip(tcp_order[:5], [float(scores[ids.index(t)]) for t in tcp_order[:5]]))
     print(f"TCP order saved to {tcp_order_path}. Top-5: {top5}")
+    print(f"Weights: alpha={alpha}, beta={beta}, gamma={gamma}; reward_decay={decay}; reward_mean={float(np.mean(reward_vec)) if reward_vec.size else 0.0}")
 
 if __name__ == "__main__":
     main()
