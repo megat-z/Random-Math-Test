@@ -1,6 +1,7 @@
 import os
 import json
 import subprocess
+import sys
 
 def load_tcp_order():
     with open("test/tcp.json") as f:
@@ -15,7 +16,7 @@ def run_test_script(script_name, input1, input2, expected):
     args = [str(input1), str(input2), str(expected)]
     try:
         result = subprocess.run(
-            ["python", script_path] + args,
+            [sys.executable, script_path] + args,
             capture_output=True,
             text=True,
             timeout=15
