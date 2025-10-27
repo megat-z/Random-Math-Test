@@ -133,6 +133,10 @@ def main():
     
     tcp_order = load_tcp_order()
     test_cases = load_test_cases()
+    
+    # Get canonical ordering from test-cases.json keys
+    canonical_order = sorted(test_cases.keys())
+    
     results = {}
     all_passed = True
     failure_count = 0
@@ -173,6 +177,9 @@ def main():
         else:
             print(f"✅ {tcid} passed in {test_duration:.3f}s")
 
+    # Reorder results dictionary according to canonical test-cases.json order
+    ordered_results = {tcid: results.get(tcid, 0) for tcid in canonical_order}
+
     fault_dir = "test/fault-matrices"
     os.makedirs(fault_dir, exist_ok=True)
     existing = [
@@ -181,8 +188,16 @@ def main():
     ]
     next_num = 1 + max([int(f[1:-5]) for f in existing] or [0])
     out_path = os.path.join(fault_dir, f"V{next_num}.json")
+    
+    # Write fault matrix in canonical order
     with open(out_path, "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump(ordered_results, f, indent=2)
+    
+    # Save TCP order to a temporary file for the workflow to use as Git note
+    tcp_order_file = os.path.join(fault_dir, f"V{next_num}_tcp_order.txt")
+    with open(tcp_order_file, "w") as f:
+        f.write(f"TCP Order used for V{next_num} execution:\n")
+        f.write(json.dumps(tcp_order, indent=2))
     
     # Calculate total execution time
     end_time = datetime.utcnow()
@@ -194,6 +209,7 @@ def main():
     print(f"✅ Passed: {len(tcp_order) - failure_count}/{len(tcp_order)}")
     print(f"❌ Failed: {failure_count}/{len(tcp_order)}")
     print(f"💾 Results saved to {out_path}")
+    print(f"📋 TCP order saved to {tcp_order_file}")
     
     # Enhanced step summary with timing
     summary = (
