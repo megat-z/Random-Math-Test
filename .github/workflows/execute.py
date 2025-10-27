@@ -72,14 +72,13 @@ def append_step_summary(text: str):
 def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr):
     prn = (os.environ.get("PRN") or "").strip()
     branch = (os.environ.get("BRANCH_NAME") or "").strip()
-    attempt = (os.environ.get("EXECUTION_ATTEMPT") or "1").strip()
     server = os.environ.get("GITHUB_SERVER_URL", "https://github.com")
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     run_id = os.environ.get("GITHUB_RUN_ID", "")
     run_url = f"{server}/{repo}/actions/runs/{run_id}" if repo and run_id else ""
 
     # Build a concise, informative message
-    header = f"❌ Test failure detected (attempt {attempt})"
+    header = f"❌ Test failure detected"
     details = (
         f"- TCID: {tcid}\n"
         f"- Script: {script_file}\n"
@@ -99,7 +98,7 @@ def report_failure(tcid, script_file, input1, input2, expected, stdout, stderr):
     if prn:
         gh_pr_comment(prn, body)
     elif branch == "main" or branch.endswith("/main"):
-        title = f"[Attempt {attempt}] Failed test: {tcid}"
+        title = f"{tcid} Failed"
         gh_issue_create(title, body)
     else:
         # Fallback: print to logs if neither PR nor main branch context
