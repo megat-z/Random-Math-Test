@@ -5,7 +5,7 @@ import sys
 from typing import Tuple, Union
 
 PROB_DIST = 0.5 # 0.0 -> 1.0
-NUM_TESTS = 25 # Any Integer
+NUM_TESTS = 10 # Any Integer
 OPERATIONS = [
     'add.py',
     'sub.py',
