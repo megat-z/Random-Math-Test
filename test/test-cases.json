@@ -1,202 +1,202 @@
 {
   "TC01": {
     "input": [
-      10,
-      5
+      18,
+      87
     ],
-    "output": 5,
-    "script": "sub.py"
+    "output": 1566,
+    "script": "mul.py"
   },
   "TC02": {
     "input": [
-      26,
-      59
+      10,
+      89
     ],
-    "output": 93,
-    "script": "div.py"
+    "output": 4,
+    "script": "add.py"
   },
   "TC03": {
     "input": [
-      95,
-      82
+      4,
+      11
     ],
-    "output": 57,
-    "script": "mul.py"
+    "output": 8,
+    "script": "div.py"
   },
   "TC04": {
     "input": [
-      73,
-      54
+      75,
+      4
     ],
-    "output": 44,
+    "output": 79,
     "script": "add.py"
   },
   "TC05": {
     "input": [
-      1,
-      2
+      79,
+      83
     ],
-    "output": 23,
-    "script": "mul.py"
+    "output": 162,
+    "script": "add.py"
   },
   "TC06": {
     "input": [
-      54,
-      67
+      21,
+      89
     ],
-    "output": 41,
+    "output": -68,
     "script": "sub.py"
   },
   "TC07": {
     "input": [
-      50,
-      28
+      48,
+      16
     ],
-    "output": 35,
+    "output": 25,
     "script": "add.py"
   },
   "TC08": {
     "input": [
-      84,
-      63
+      50,
+      97
     ],
-    "output": 60,
+    "output": 4850,
     "script": "mul.py"
   },
   "TC09": {
     "input": [
-      74,
-      51
+      39,
+      71
     ],
-    "output": 59,
-    "script": "div.py"
+    "output": -32,
+    "script": "sub.py"
   },
   "TC10": {
     "input": [
-      89,
-      38
+      34,
+      15
     ],
-    "output": 1,
-    "script": "mul.py"
+    "output": 49,
+    "script": "add.py"
   },
   "TC11": {
     "input": [
-      17,
-      47
+      87,
+      22
     ],
-    "output": 28,
+    "output": 61,
     "script": "add.py"
   },
   "TC12": {
     "input": [
-      92,
-      88
+      48,
+      25
     ],
-    "output": 43,
-    "script": "add.py"
+    "output": 1.92,
+    "script": "div.py"
   },
   "TC13": {
     "input": [
-      50,
-      14
+      92,
+      26
     ],
-    "output": 71,
-    "script": "div.py"
+    "output": 51,
+    "script": "sub.py"
   },
   "TC14": {
     "input": [
-      66,
-      74
+      71,
+      23
     ],
-    "output": 73,
-    "script": "sub.py"
+    "output": 67,
+    "script": "add.py"
   },
   "TC15": {
     "input": [
-      98,
-      38
+      64,
+      62
     ],
-    "output": 96,
-    "script": "mul.py"
+    "output": 62,
+    "script": "sub.py"
   },
   "TC16": {
     "input": [
-      86,
-      52
+      68,
+      31
     ],
-    "output": 19,
-    "script": "sub.py"
+    "output": 38,
+    "script": "add.py"
   },
   "TC17": {
     "input": [
-      39,
-      91
+      70,
+      45
     ],
-    "output": 87,
-    "script": "sub.py"
+    "output": 3150,
+    "script": "mul.py"
   },
   "TC18": {
     "input": [
-      40,
-      90
+      8,
+      18
     ],
-    "output": 67,
-    "script": "div.py"
+    "output": 26,
+    "script": "add.py"
   },
   "TC19": {
     "input": [
-      78,
-      50
+      7,
+      11
     ],
-    "output": 7,
-    "script": "add.py"
+    "output": -4,
+    "script": "sub.py"
   },
   "TC20": {
     "input": [
-      58,
-      75
+      17,
+      81
     ],
-    "output": 10,
-    "script": "add.py"
+    "output": 1377,
+    "script": "mul.py"
   },
   "TC21": {
     "input": [
-      35,
-      45
+      84,
+      63
     ],
-    "output": 37,
-    "script": "mul.py"
+    "output": 1.3333333333333333,
+    "script": "div.py"
   },
   "TC22": {
     "input": [
-      25,
-      57
+      96,
+      16
     ],
-    "output": 89,
+    "output": 29,
     "script": "div.py"
   },
   "TC23": {
     "input": [
-      16,
-      51
+      3,
+      67
     ],
-    "output": 44,
-    "script": "add.py"
+    "output": 201,
+    "script": "mul.py"
   },
   "TC24": {
     "input": [
-      26,
-      11
+      6,
+      48
     ],
-    "output": 32,
+    "output": 21,
     "script": "mul.py"
   },
   "TC25": {
     "input": [
-      93,
+      7,
       80
     ],
-    "output": 36,
-    "script": "div.py"
+    "output": 95,
+    "script": "sub.py"
   }
 }
