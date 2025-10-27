@@ -20,17 +20,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
-          fetch-depth: 0  # Fetch all history for git notes
+          fetch-depth: 1
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up Python with caching
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: 'pip'
 
-      - name: Install dependencies
+      - name: Install dependencies (cached)
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip --quiet
+          pip install -r requirements.txt --quiet
 
       - name: Execute test scripts and record results
         id: exec
@@ -38,46 +39,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: ${{ env.BRANCH_NAME }}
           PRN: ${{ env.PRN }}
-        run: |
-          python .github/workflows/execute.py
+        run: python .github/workflows/execute.py
 
-      - name: Commit new fault matrix with TCP order annotation
+      - name: Commit fault matrix
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
           
-          # Stage the fault matrix files
+          # Stage fault matrix JSON files only
           git add test/fault-matrices/*.json
           
-          # Check if there are changes to commit
           if git diff --cached --quiet; then
             echo "No fault matrix changes to commit."
           else
-            # Commit the fault matrix
-            git commit -m "Execute: new fault matrix"
-            
-            # Find the TCP order file that was created
-            TCP_ORDER_FILE=$(ls test/fault-matrices/*_tcp_order.txt 2>/dev/null | head -n 1)
-            
-            if [ -n "$TCP_ORDER_FILE" ] && [ -f "$TCP_ORDER_FILE" ]; then
-              # Add git note with TCP order to the commit
-              git notes add -m "$(cat $TCP_ORDER_FILE)" HEAD
-              
-              echo "✅ Added TCP order as git note to commit"
-              
-              # Clean up the temporary TCP order file
-              rm -f "$TCP_ORDER_FILE"
-              git add test/fault-matrices/
-              if ! git diff --cached --quiet; then
-                git commit --amend --no-edit
-              fi
-            else
-              echo "⚠️  TCP order file not found, skipping git note"
-            fi
-            
-            # Push commit and notes
-            git push origin $BRANCH_NAME
-            git push origin refs/notes/commits
+            # Commit fault matrix
+            git commit -m "Execute: new fault matrix" --quiet
+            git push origin ${{ env.BRANCH_NAME }} --quiet
           fi
 
       - name: Reprioritize with reinforcement learning for next cycle
@@ -85,24 +62,24 @@ jobs:
         run: |
           echo "Failures detected; reprioritizing for next execution cycle..."
           python .github/workflows/prioritize.py
-          echo "New tcp.json computed (will be committed for next cycle)."
 
       - name: Commit reprioritized tcp.json for next cycle
         if: ${{ steps.exec.outputs.all_passed != 'true' }}
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
           git add test/tcp.json
-          if git diff --cached --quiet; then
-            echo "No changes to tcp.json."
+          
+          if ! git diff --cached --quiet; then
+            git commit -m "[skip-execute] Reprioritize: updated tcp.json for next cycle" --quiet
+            git push origin ${{ env.BRANCH_NAME }} --quiet
           else
-            git commit -m "[skip-execute] Reprioritize: updated tcp.json for next cycle"
-            git push origin $BRANCH_NAME
+            echo "No changes to tcp.json."
           fi
 
       - name: Approve PR if all tests passed
         if: ${{ env.PRN != '' && steps.exec.outputs.all_passed == 'true' }}
         run: |
-          gh pr review $PRN --approve --body "✅ All test cases passed in this execution."
+          gh pr review ${{ env.PRN }} --approve --body "✅ All test cases passed in this execution."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
