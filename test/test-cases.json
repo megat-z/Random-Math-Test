@@ -1,162 +1,202 @@
 {
   "TC01": {
     "input": [
-      53,
-      20
+      13,
+      3
     ],
-    "output": 33,
-    "script": "sub.py"
+    "output": 4.333333333333333,
+    "script": "div.py"
   },
   "TC02": {
     "input": [
-      86,
-      28
+      78,
+      76
     ],
-    "output": 30,
-    "script": "mul.py"
+    "output": 41,
+    "script": "add.py"
   },
   "TC03": {
     "input": [
-      44,
-      81
+      32,
+      80
     ],
-    "output": 7,
-    "script": "div.py"
+    "output": -48,
+    "script": "sub.py"
   },
   "TC04": {
     "input": [
-      81,
-      20
+      45,
+      22
     ],
-    "output": 1620,
-    "script": "mul.py"
+    "output": 67,
+    "script": "add.py"
   },
   "TC05": {
     "input": [
-      79,
-      95
+      100,
+      18
     ],
-    "output": 0.8315789473684211,
-    "script": "div.py"
+    "output": 1800,
+    "script": "mul.py"
   },
   "TC06": {
     "input": [
-      64,
-      25
+      27,
+      31
     ],
-    "output": 2.56,
+    "output": 1,
     "script": "div.py"
   },
   "TC07": {
     "input": [
-      84,
-      97
+      96,
+      37
     ],
-    "output": 95,
-    "script": "sub.py"
+    "output": 3552,
+    "script": "mul.py"
   },
   "TC08": {
     "input": [
-      60,
+      43,
       81
     ],
-    "output": 49,
-    "script": "div.py"
+    "output": 40,
+    "script": "mul.py"
   },
   "TC09": {
     "input": [
-      43,
-      38
+      1,
+      88
     ],
-    "output": 1634,
-    "script": "mul.py"
+    "output": -87,
+    "script": "sub.py"
   },
   "TC10": {
     "input": [
-      4,
-      60
-    ],
-    "output": 13,
-    "script": "mul.py"
-  },
-  "TC11": {
-    "input": [
-      17,
-      33
+      78,
+      22
     ],
     "output": 50,
     "script": "add.py"
   },
+  "TC11": {
+    "input": [
+      45,
+      56
+    ],
+    "output": 101,
+    "script": "add.py"
+  },
   "TC12": {
     "input": [
-      67,
-      70
+      37,
+      97
     ],
-    "output": 4690,
-    "script": "mul.py"
+    "output": 96,
+    "script": "sub.py"
   },
   "TC13": {
     "input": [
-      75,
-      92
+      68,
+      54
     ],
-    "output": 82,
-    "script": "sub.py"
+    "output": 3672,
+    "script": "mul.py"
   },
   "TC14": {
     "input": [
-      19,
-      6
+      40,
+      45
     ],
-    "output": 63,
+    "output": 20,
     "script": "sub.py"
   },
   "TC15": {
     "input": [
-      62,
-      71
+      26,
+      37
     ],
-    "output": 133,
+    "output": 27,
     "script": "add.py"
   },
   "TC16": {
     "input": [
-      15,
-      13
+      34,
+      54
     ],
-    "output": 10,
-    "script": "mul.py"
+    "output": 0.6296296296296297,
+    "script": "div.py"
   },
   "TC17": {
     "input": [
-      26,
-      84
+      91,
+      82
     ],
-    "output": 21,
+    "output": 58,
     "script": "div.py"
   },
   "TC18": {
     "input": [
-      78,
-      68
+      89,
+      20
     ],
-    "output": 52,
-    "script": "add.py"
+    "output": 1780,
+    "script": "mul.py"
   },
   "TC19": {
     "input": [
-      22,
-      24
+      94,
+      22
     ],
-    "output": 46,
-    "script": "add.py"
+    "output": 28,
+    "script": "div.py"
   },
   "TC20": {
     "input": [
-      20,
-      49
+      94,
+      69
     ],
-    "output": -29,
+    "output": 12,
     "script": "sub.py"
+  },
+  "TC21": {
+    "input": [
+      38,
+      79
+    ],
+    "output": 117,
+    "script": "add.py"
+  },
+  "TC22": {
+    "input": [
+      23,
+      16
+    ],
+    "output": 4,
+    "script": "add.py"
+  },
+  "TC23": {
+    "input": [
+      32,
+      39
+    ],
+    "output": 53,
+    "script": "add.py"
+  },
+  "TC24": {
+    "input": [
+      72,
+      48
+    ],
+    "output": 40,
+    "script": "div.py"
+  },
+  "TC25": {
+    "input": [
+      86,
+      25
+    ],
+    "output": 2150,
+    "script": "mul.py"
   }
 }
